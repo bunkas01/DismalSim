@@ -4,16 +4,16 @@ __author__ = "Ashleigh"
 
 
 class Node:
-    def __init__(self, name, data=None, edges=[]):
+    def __init__(self, name, data=None):
         self.name = name
         self.data = data
-        self.edges = edges
+        self.edges = []
 
     def __str__(self):
-        nodeDetails = ["Node:", self.name, "has value:", str(self.data),"\n",
+        nodeDetails = ["Node:", self.name, "has value:", str(self.data), "\n",
                        "and is linked to these nodes:"]
         for edge in self.edges:
-            nodeDetails.append(edge.get_child_node())
+            nodeDetails.append(edge.get_child_node().get_name())
         return " ".join(nodeDetails)
 
     def get_data(self):
@@ -39,20 +39,21 @@ class Node:
                 return edge
         return None
 
-    def add_edge(self, childNode, transformType, **kwargs):
-        newEdge = TransformEdge(self, childNode, transformType, **kwargs)
+    def add_edge(self, childNode, transformType, paramNames, paramVals):
+        newEdge = TransformEdge(self, childNode, transformType, paramNames,
+                                paramVals)
         self.edges.append(newEdge)
         return None
 
 
 class TransformEdge:
-    def __init__(self, parentNode, childNode, transformType, **kwargs):
+    def __init__(self, parentNode, childNode, transformType, paramNames,
+                 paramVals):
         self.parentNode = parentNode
         self.childNode = childNode
         self.transformType = transformType
-        self.transformArgNames = list(kwargs.keys())
-        self.transformArgs = list(kwargs.values())
-        kwargs.clear()
+        self.transformArgNames = paramNames
+        self.transformArgs = paramVals
 
     def __str__(self):
         edgeDetails = ["This is a directed edge between",
@@ -60,7 +61,7 @@ class TransformEdge:
                        self.childNode.get_name(), "with transform type:",
                        self.transformType, "\n",
                        "and the following parameters:"]
-        for index in range(0,len(self.transformArgNames)):
+        for index in range(0, len(self.transformArgNames)):
             edgeDetails.append(str(self.transformArgNames[index]))
             edgeDetails.append(str(self.transformArgs[index]))
         return " ".join(edgeDetails)
@@ -87,38 +88,43 @@ class TransformEdge:
     #     self.transformArgs = kwargs
     #     return None
     #
-    # This class method may not be used.
-
+    # This class method may not be used. And its class data is horribly
+    # out of date.
 
 
 def main():
-    node1 = Node("ONE")
-    node2 = Node("TWO")
-    node3 = Node("THREE")
-    node4 = Node("FOUR")
-    node5 = Node("FIVE")
+    node1 = Node("ONE", 42)
+    node2 = Node("TWO", 8)
+    node3 = Node("THREE", 50)
+    node4 = Node("FOUR", 9)
+    node5 = Node("FIVE", 21)
 
-    node1.add_edge(node3, "proportional", coefficient=1)
-    node1.add_edge(node2, "linear", gradient=2, intercept=5)
-    node1.add_edge(node5, "proportional", coefficient=2)
-    node2.add_edge(node4, "proportional", coefficient=1)
+    node1.add_edge(node3, "proportional", ["coefficient"], [1])
+    node1.add_edge(node2, "linear", ["gradient", "intercept"], [2,5])
+    node1.add_edge(node5, "proportional", ["coefficient"], [2])
+    node2.add_edge(node4, "proportional", ["coefficient"], [1])
+    node2.add_edge(node5, "polynomial", ["first coefficient", "first power"],
+                   [3,2])
+    node3.add_edge(node2, "proportional", ["coefficient"], [4])
+    node4.add_edge(node1, "proportional", ["coefficient"], [1])
+    node5.add_edge(node4, "proportional", ["coefficient"], [6])
 
     for edge in node1.get_all_edges():
         print(edge)
-    # for edge in node2.get_all_edges():
-    #     print(edge)
-    # for edge in node3.get_all_edges():
-    #     print(edge)
-    # for edge in node4.get_all_edges():
-    #     print(edge)
-    # for edge in node5.get_all_edges():
-    #     print(edge)
+    for edge in node2.get_all_edges():
+        print(edge)
+    for edge in node3.get_all_edges():
+        print(edge)
+    for edge in node4.get_all_edges():
+        print(edge)
+    for edge in node5.get_all_edges():
+        print(edge)
 
-    # print(node1)
-    # print(node2)
-    # print(node3)
-    # print(node4)
-    # print(node5)
+    print(node1) # Expected links: THREE, TWO, and FIVE
+    print(node2) # Expected links: FOUR and FIVE
+    print(node3) # Expected links: TWO
+    print(node4) # Expected links: ONE
+    print(node5) # Expected links: FOUR
 
 
 if __name__ == '__main__':
