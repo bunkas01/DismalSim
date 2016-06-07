@@ -16,19 +16,20 @@ class Node:
             nodeDetails.append(edge.get_child_node().get_name())
         return " ".join(nodeDetails)
 
+    def __contains__(self, item):
+        pass
+
     def get_data(self):
         return self.data
 
     def set_data(self, newData):
         self.data = newData
-        return None
 
     def get_name(self):
         return self.name
 
     def set_name(self, newName):
         self.name = newName
-        return None
 
     def get_all_edges(self):
         return self.edges
@@ -37,13 +38,11 @@ class Node:
         for edge in self.edges:
             if edge.get_child_node() == childNode:
                 return edge
-        return None
 
     def add_edge(self, childNode, transformType, paramNames, paramVals):
         newEdge = TransformEdge(self, childNode, transformType, paramNames,
                                 paramVals)
         self.edges.append(newEdge)
-        return None
 
 
 class TransformEdge:
@@ -71,14 +70,12 @@ class TransformEdge:
 
     def set_parent_node(self, newParentNode):
         self.parentNode = newParentNode
-        return None
 
     def get_child_node(self):
         return self.childNode
 
     def set_child_node(self, newChildNode):
         self.childNode = newChildNode
-        return None
 
     def get_transform_type(self):
         return self.transformType
@@ -108,6 +105,12 @@ def main():
     node3.add_edge(node2, "proportional", ["coefficient"], [4])
     node4.add_edge(node1, "proportional", ["coefficient"], [1])
     node5.add_edge(node4, "proportional", ["coefficient"], [6])
+
+    print(type(node1))
+    print(type(node2))
+    print(type(node3))
+    print(type(node4))
+    print(type(node5))
 
     for edge in node1.get_all_edges():
         print(edge)
