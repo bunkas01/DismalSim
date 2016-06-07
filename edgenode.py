@@ -1,3 +1,5 @@
+import sys
+
 __author__ = "Ashleigh"
 
 """Placeholder Docstring"""
@@ -8,6 +10,9 @@ class Node:
         self.name = name
         self.data = data
         self.edges = []
+        self.colour = "white"
+        self.distance = sys.maxsize
+        self.searchedEdge = None
 
     def __str__(self):
         nodeDetails = ["Node:", self.name, "has value:", str(self.data), "\n",
@@ -18,6 +23,12 @@ class Node:
 
     def __contains__(self, item):
         pass
+
+    def __eq__(self, other):
+        if self.name == other.get_name():
+            return True
+        else:
+            return False
 
     def get_data(self):
         return self.data
@@ -44,6 +55,24 @@ class Node:
                                 paramVals)
         self.edges.append(newEdge)
 
+    def get_colour(self):
+        return self.colour
+
+    def set_colour(self, newColour):
+        self.colour = newColour
+
+    def get_distance(self):
+        return self.distance
+
+    def set_distance(self, newDistance):
+        self.distance = newDistance
+
+    def get_searched_edge(self):
+        return self.searchedEdge
+
+    def set_searched_edge(self, searchedEdge):
+        self.searchedEdge = searchedEdge
+
 
 class TransformEdge:
     def __init__(self, parentNode, childNode, transformType, paramNames,
@@ -53,6 +82,8 @@ class TransformEdge:
         self.transformType = transformType
         self.transformArgNames = paramNames
         self.transformArgs = paramVals
+        self.invertedFlag = False
+        self.negatedFlag = False
 
     def __str__(self):
         edgeDetails = ["This is a directed edge between",
@@ -80,13 +111,17 @@ class TransformEdge:
     def get_transform_type(self):
         return self.transformType
 
-    # def set_transform_type(self, newTransformType, **kwargs):
-    #     self.transformType = newTransformType
-    #     self.transformArgs = kwargs
-    #     return None
-    #
-    # This class method may not be used. And its class data is horribly
-    # out of date.
+    def check_invert(self):
+        return self.invertedFlag
+
+    def change_invert(self):
+        self.invertedFlag = not self.invertedFlag
+
+    def check_negation(self):
+        return self.negatedFlag
+
+    def change_negation(self):
+        self.negatedFlag = not self.negatedFlag
 
 
 def main():
@@ -97,11 +132,11 @@ def main():
     node5 = Node("FIVE", 21)
 
     node1.add_edge(node3, "proportional", ["coefficient"], [1])
-    node1.add_edge(node2, "linear", ["gradient", "intercept"], [2,5])
+    node1.add_edge(node2, "linear", ["gradient", "intercept"], [2, 5])
     node1.add_edge(node5, "proportional", ["coefficient"], [2])
     node2.add_edge(node4, "proportional", ["coefficient"], [1])
     node2.add_edge(node5, "polynomial", ["first coefficient", "first power"],
-                   [3,2])
+                   [3, 2])
     node3.add_edge(node2, "proportional", ["coefficient"], [4])
     node4.add_edge(node1, "proportional", ["coefficient"], [1])
     node5.add_edge(node4, "proportional", ["coefficient"], [6])
@@ -114,20 +149,50 @@ def main():
 
     for edge in node1.get_all_edges():
         print(edge)
+        print(edge.check_invert())
+        print(edge.check_negation())
+        edge.change_invert()
+        edge.change_negation()
+        print(edge.check_invert())
+        print(edge.check_negation())
     for edge in node2.get_all_edges():
         print(edge)
+        print(edge.check_invert())
+        print(edge.check_negation())
+        edge.change_invert()
+        edge.change_negation()
+        print(edge.check_invert())
+        print(edge.check_negation())
     for edge in node3.get_all_edges():
         print(edge)
+        print(edge.check_invert())
+        print(edge.check_negation())
+        edge.change_invert()
+        edge.change_negation()
+        print(edge.check_invert())
+        print(edge.check_negation())
     for edge in node4.get_all_edges():
         print(edge)
+        print(edge.check_invert())
+        print(edge.check_negation())
+        edge.change_invert()
+        edge.change_negation()
+        print(edge.check_invert())
+        print(edge.check_negation())
     for edge in node5.get_all_edges():
         print(edge)
+        print(edge.check_invert())
+        print(edge.check_negation())
+        edge.change_invert()
+        edge.change_negation()
+        print(edge.check_invert())
+        print(edge.check_negation())
 
-    print(node1) # Expected links: THREE, TWO, and FIVE
-    print(node2) # Expected links: FOUR and FIVE
-    print(node3) # Expected links: TWO
-    print(node4) # Expected links: ONE
-    print(node5) # Expected links: FOUR
+    print(node1)  # Expected links: THREE, TWO, and FIVE
+    print(node2)  # Expected links: FOUR and FIVE
+    print(node3)  # Expected links: TWO
+    print(node4)  # Expected links: ONE
+    print(node5)  # Expected links: FOUR
 
 
 if __name__ == '__main__':
