@@ -2,11 +2,55 @@ import sys
 
 __author__ = "Ashleigh"
 
-"""Placeholder Docstring"""
+"""Contains the Node and TransformEdge classes for a graph.
+
+Classes:
+    - Node: serves as a vertex within a directed graph.
+    - TransformEdge: represents the directed edges within the graph.
+      Additionally, the edges also contain references to assorted types
+      of transformative functions, used when the graph is part of an
+      economic simulation.
+"""
 
 
 class Node:
+    """The Node class, intended to be used as a vertex in a graph.
+
+        The instance variables for the Node class are as follows:
+            - name, the Node's name.
+            - data, the data contained within the node.
+            - edges, a list of edges that have the node as a parent.
+            - colour, the colour of the node, to be used by traversal
+              algorithms.
+            - distance, the distance from a start node, referenced in
+              some traversals.
+            - searchedEdge, the edge that linked to this node from a
+              predecessor in a traversal or pathfinding operation.
+
+        The public methods for the Node class are as follows:
+            - __str__(self)
+            - __contains__(self, item)
+            - __eq__(self, other)
+            - get_data(self)
+            - set_data(self, newData)
+            - get_name(self)
+            - set_name(self, newName)
+            - get_all_edges(self)
+            - get_edge_by_child(self, childNode)
+            - add_edge(self, childNode, transformType, paramNames, paramVals)
+            - add_existing_edge(self, edge)
+            - remove_edge(self, edge)
+            - get_colour(self)
+            - set_colour(self, newColour)
+            - get_distance(self)
+            - set_distance(self, newDistance)
+            - get_searched_edge(self)
+            - set_searched_edge(self, searchedEdge)
+        """
+
     def __init__(self, name, data=None):
+        """initializes Node class based on name and optional data."""
+
         self.name = name
         self.data = data
         self.edges = []
@@ -15,6 +59,11 @@ class Node:
         self.searchedEdge = None
 
     def __str__(self):
+        """Returns a formatted string summarizing the Node.
+
+        The summary contains the Node's name, the data it contains, and
+        the names of all of its child nodes.
+        """
         nodeDetails = ["Node:", self.name, "has value:", str(self.data), "\n",
                        "and is linked to these nodes:"]
         for edge in self.edges:
@@ -152,10 +201,6 @@ class TransformEdge:
             elif other.get_transform_type() == "polynomial":
                 self.transformType = "polynomial"  # implement FOIL
         return self
-
-    # def __imul__(self, other):
-    #     self.transformType = self * other
-    #     return self
 
     def reverse(self):
         tempParent = self.parentNode

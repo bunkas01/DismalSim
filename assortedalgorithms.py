@@ -7,6 +7,7 @@ __author__ = "Ashleigh"
 
 def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
     """Reverses causality between two nodes, and modifies graph in place"""
+
     emptyPath = []
     startNode = aGraph.get_node(startNodeName)
     endNode = aGraph.get_node(endNodeName)
@@ -54,7 +55,7 @@ def brute_find_path(aGraph, startNode, endNode, edgePath):
         elif targetNode == endNode:
             edgePath.insert(0, edge)
             for pathEdge in reversed(edgePath):
-                if pathEdge.get_parent_node().get_searched_edge() != None:
+                if pathEdge.get_parent_node().get_searched_edge() is not None:
                     nextEdge = pathEdge.get_parent_node().get_searched_edge()
                     edgePath.insert(0, nextEdge)
     return edgePath
