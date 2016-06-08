@@ -6,22 +6,57 @@ __author__ = "Ashleigh"
 
 
 def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
+    """Reverses causality between two nodes, and modifies graph in place"""
     emptyPath = []
-    edgePath = brute_find_path(aGraph, startNodeName, endNodeName, emptyPath)
-    for edge in edgePath:
-        edge.change_invert()
-
-
-def brute_find_path(aGraph, startNodeName, endNodeName, edgePath):
     startNode = aGraph.get_node(startNodeName)
     endNode = aGraph.get_node(endNodeName)
+    edgePath = brute_find_path(aGraph, startNode, endNode, emptyPath)
+    nodePath = find_node_path(edgePath)
+    for edge in edgePath:
+        edge.reverse()
+        edge.change_invert()
+    adjust_converging_edges(aGraph, edgePath, nodePath)
+
+
+
+def find_node_path(edgePath):
+    """helper function for wyatt_causality_reversal()"""
+
+    nodePath = []
+    nodePath.append(edgePath[0].get_parent_node())
+    for edge in edgePath:
+        nodePath.append(edge.get_child_node())
+    return nodePath
+
+
+def adjust_converging_edges(aGraph, edgePath, nodePath):
+    """Helper function for wyatt_causality_reversal()"""
+
+    allEdges = aGraph.get_all_edges()
+    for edge in allEdges:
+        if edge not in edgePath and edge.get_child_node() in nodePath:
+            oldChild = edge.get_child_node()
+            newChildIndex = nodePath.index(oldChild) - 1
+            if newChildIndex >= 0:
+                edge.set_child_node(nodePath[newChildIndex])
+                edge.change_negation()
+                edge *= oldChild.get_edge_by_child(nodePath[newChildIndex])
+
+
+def brute_find_path(aGraph, startNode, endNode, edgePath):
+    """Helper function for wyatt_causality_reversal()"""
 
     for edge in startNode.get_all_edges():
         targetNode = edge.get_child_node()
+        targetNode.set_searched_edge(edge)
         if targetNode != endNode:
             brute_find_path(aGraph, targetNode, endNode, edgePath)
-
-    edgePath.insert(0, targetNode)
+        elif targetNode == endNode:
+            edgePath.insert(0, edge)
+            for pathEdge in reversed(edgePath):
+                if pathEdge.get_parent_node().get_searched_edge() != None:
+                    nextEdge = pathEdge.get_parent_node().get_searched_edge()
+                    edgePath.insert(0, nextEdge)
     return edgePath
 
 

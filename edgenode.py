@@ -55,6 +55,12 @@ class Node:
                                 paramVals)
         self.edges.append(newEdge)
 
+    def add_existing_edge(self, edge):
+        self.edges.append(edge)
+
+    def remove_edge(self, edge):
+        self.edges.remove(edge)
+
     def get_colour(self):
         return self.colour
 
@@ -75,6 +81,14 @@ class Node:
 
 
 class TransformEdge:
+    """Edges with support for transformative functions.
+
+    Currently, linear, proportional, and polynomial transformation
+    functions are supported, as well as combinations of any two of
+    these functions. Transformative functions are called as part of the
+    graph's role as a basis for an economic simulation.
+    """
+
     def __init__(self, parentNode, childNode, transformType, paramNames,
                  paramVals):
         self.parentNode = parentNode
@@ -94,7 +108,62 @@ class TransformEdge:
         for index in range(0, len(self.transformArgNames)):
             edgeDetails.append(str(self.transformArgNames[index]))
             edgeDetails.append(str(self.transformArgs[index]))
+        if self.invertedFlag:
+            edgeDetails.extend(["\n", "The edge transform function has been "
+                                      "inverted as part of causality reversal"])
         return " ".join(edgeDetails)
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        elif (self.parentNode == other.get_parent_node() and self.childNode ==
+              other.get_child_node()):
+            return True
+        else:
+            return False
+
+    def __mul__(self, other):
+        if self.transformType == "proportional":
+            if other.get_transform_type() == "proportional":
+                self.transformType = "proportional"  # coefficients multiply
+            elif other.get_transform_type() == "linear":
+                self.transformType = "linear"
+                # multiply gradient and intercept by coefficient
+            elif other.get_transform_type() == "polynomial":
+                self.transformType = "polynomial"
+                # multiply all coefficients by proportional coefficient
+        elif self.transformType == "linear":
+            if other.get_transform_type() == "proportional":
+                self.transformType = "linear"
+                # multiply gradient and intercept by coefficient
+            elif other.get_transform_type() == "linear":
+                self.transformType = "fuckifiknow"
+                # figure it out on a whiteboard
+            elif other.get_transform_type() == "polynomial":
+                self.transformType = "fuckifiknow"
+                # figure it out on a whiteboard
+        elif self.transformType == "polynomial":
+            if other.get_transform_type() == "proportional":
+                self.transformType = "polynomial"
+                # multiply all coefficients by proportional coefficient
+            elif other.get_transform_type() == "linear":
+                self.transformType = "fuckifiknow"
+                # figure it out on a whiteboard
+            elif other.get_transform_type() == "polynomial":
+                self.transformType = "polynomial"  # implement FOIL
+        return self
+
+    # def __imul__(self, other):
+    #     self.transformType = self * other
+    #     return self
+
+    def reverse(self):
+        tempParent = self.parentNode
+        tempChild = self.childNode
+        self.parentNode = tempChild
+        self.childNode = tempParent
+        self.childNode.remove_edge(self)
+        self.parentNode.add_existing_edge(self)
 
     def get_parent_node(self):
         return self.parentNode
