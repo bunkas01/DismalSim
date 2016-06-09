@@ -16,47 +16,51 @@ Classes:
 class Node:
     """The Node class, intended to be used as a vertex in a graph.
 
-        The instance variables for the Node class are as follows:
-            - name, the Node's name.
-            - data, the data contained within the node.
-            - edges, a list of edges that have the node as a parent.
-            - colour, the colour of the node, to be used by traversal
-              algorithms.
-            - distance, the distance from a start node, referenced in
-              some traversals.
-            - searchedEdge, the edge that linked to this node from a
-              predecessor in a traversal or pathfinding operation.
+       The instance variables for the Node class are as follows:
+           - name, the Node's name.
+           - data, the data contained within the node.
+           - edges, a list of edges that have the node as a parent.
+           - colour, the colour of the node, to be used by traversal
+             algorithms.
+           - distance, the distance from a start node, referenced in
+             some traversals.
+           - searchedEdge, the edge that linked to this node from a
+             predecessor in a traversal or pathfinding operation.
+           - discoveredTime, used in depth first traversals
+           - finishedTime, used in depth first traversals
 
-        The public methods for the Node class are as follows:
-            - __str__(self)
-            - __contains__(self, item)
-            - __eq__(self, other)
-            - get_data(self)
-            - set_data(self, newData)
-            - get_name(self)
-            - set_name(self, newName)
-            - get_all_edges(self)
-            - get_edge_by_child(self, childNode)
-            - add_edge(self, childNode, transformType, paramNames, paramVals)
-            - add_existing_edge(self, edge)
-            - remove_edge(self, edge)
-            - get_colour(self)
-            - set_colour(self, newColour)
-            - get_distance(self)
-            - set_distance(self, newDistance)
-            - get_searched_edge(self)
-            - set_searched_edge(self, searchedEdge)
+       The public methods for the Node class are as follows:
+           - __str__(self)
+           - __contains__(self, item)
+           - __eq__(self, other)
+           - reset_traversal_data(self)
+           - get_data(self)
+           - set_data(self, newData)
+           - get_name(self)
+           - set_name(self, newName)
+           - get_all_edges(self)
+           - get_edge_by_child(self, childNode)
+           - add_edge(self, childNode, transformType, paramNames, paramVals)
+           - add_existing_edge(self, edge)
+           - remove_edge(self, edge)
+           - get_colour(self)
+           - set_colour(self, newColour)
+           - get_distance(self)
+           - set_distance(self, newDistance)
+           - get_searched_edge(self)
+           - set_searched_edge(self, searchedEdge)
         """
 
     def __init__(self, name, data=None):
         """initializes Node class based on name and optional data."""
-
         self.name = name
         self.data = data
         self.edges = []
         self.colour = "white"
         self.distance = sys.maxsize
         self.searchedEdge = None
+        self.discoveredTime = 0
+        self.finishedTime = 0
 
     def __str__(self):
         """Returns a formatted string summarizing the Node.
@@ -64,8 +68,20 @@ class Node:
         The summary contains the Node's name, the data it contains, and
         the names of all of its child nodes.
         """
-        nodeDetails = ["Node:", self.name, "has value:", str(self.data), "\n",
-                       "and is linked to these nodes:"]
+        nodeDetails = ["Node:", self.name, "has value:", str(self.data),
+                       "has colour:", self.colour]
+        if self.searchedEdge is not None:
+            nodeDetails.extend(["was linked to by: \n",
+                                self.searchedEdge.get_parent_node().get_name(),
+                                "\n"])
+        if self.colour != "white":
+            nodeDetails.extend(["and distance:", str(self.distance)])
+        if self.discoveredTime != 0 or self.finishedTime != 0:
+            nodeDetails.extend(["\n", "node discovered on:",
+                                str(self.discoveredTime),
+                                "and fully explored on:",
+                                str(self.finishedTime)])
+        nodeDetails.extend(["\n", "and is linked to these nodes:"])
         for edge in self.edges:
             nodeDetails.append(edge.get_child_node().get_name())
         return " ".join(nodeDetails)
@@ -78,6 +94,13 @@ class Node:
             return True
         else:
             return False
+
+    def reset_traversal_data(self):
+        self.colour = "white"
+        self.distance = sys.maxsize
+        self.searchedEdge = None
+        self.discoveredTime = 0
+        self.finishedTime = 0
 
     def get_data(self):
         return self.data
@@ -127,6 +150,18 @@ class Node:
 
     def set_searched_edge(self, searchedEdge):
         self.searchedEdge = searchedEdge
+
+    def get_discovered_time(self):
+        return self.discoveredTime
+
+    def set_discovered_time(self, newTime):
+        self.discoveredTime = newTime
+
+    def get_finished_time(self):
+        return self.finishedTime
+
+    def set_finished_time(self, newTime):
+        self.finishedTime = newTime
 
 
 class TransformEdge:
