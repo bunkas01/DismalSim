@@ -1,3 +1,5 @@
+import sys
+
 import digraph
 
 __author__ = "Ashleigh"
@@ -72,6 +74,7 @@ def basic_breadth_first_traversal(aGraph, startNodeName):
             targetNode = edge.get_child_node()
             if targetNode.get_colour() == "white":
                 targetNode.set_distance(node.get_distance() + 1)
+                aGraph.set_max_distance(targetNode.get_distance())
                 targetNode.set_colour("grey")
                 targetNode.set_searched_edge(edge)
                 searchQueue.append(targetNode)
@@ -81,6 +84,7 @@ def basic_breadth_first_traversal(aGraph, startNodeName):
 def reset_nodes(aGraph):
     for node in aGraph.get_all_nodes():
         node.reset_traversal_data()
+    aGraph.set_max_distance(sys.maxsize)
 
 
 def basic_depth_first_traversal(aGraph, startNodeName):

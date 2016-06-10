@@ -106,6 +106,9 @@ class Node:
         """Adds other to the Node's delta attribute."""
         self.delta += other
 
+    def __iadd__(self, other):
+        self.delta += other
+
     def apply_delta(self):
         """Adds the value of delta to the Node's data."""
         self.data += self.delta
@@ -216,6 +219,9 @@ class Node:
         newTime.
         """
         self.finishedTime = newTime
+
+    def get_delta(self):
+        return self.delta
 
 
 class TransformEdge:
@@ -350,6 +356,11 @@ class TransformEdge:
         self.childNode = tempParent
         self.childNode.remove_edge(self)
         self.parentNode.add_existing_edge(self)
+
+    def transform(self):
+        if self.transformType == "proportional":
+            self.childNode += int(self.parentNode.get_delta()
+                               * self.transformArgs[0])
 
     def get_parent_node(self):
         """Returns a reference to the parent Node."""

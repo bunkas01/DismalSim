@@ -1,3 +1,5 @@
+import sys
+
 import edgenode
 
 __author__ = "Ashleigh"
@@ -8,6 +10,7 @@ __author__ = "Ashleigh"
 class DiGraph:
     def __init__(self):
         self.nodes = []
+        self.maxDistance = sys.maxsize
 
     def __contains__(self, nodeName):
         for node in self.nodes:
@@ -50,6 +53,12 @@ class DiGraph:
     def add_node(self, name, data=None):
         newNode = edgenode.Node(name, data)
         self.nodes.append(newNode)
+
+    def get_max_distance(self):
+        return self.maxDistance
+
+    def set_max_distance(self, newDistance):
+        self.maxDistance = newDistance
 
 
 def main():
