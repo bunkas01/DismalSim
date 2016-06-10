@@ -6,7 +6,9 @@ __author__ = "Ashleigh"
 
 
 def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
-    """Reverses causality between two nodes, and modifies graph in place"""
+    """Reverses causality between two nodes, and modifies graph in
+    place.
+    """
     emptyPath = []
     startNode = aGraph.get_node(startNodeName)
     endNode = aGraph.get_node(endNodeName)
@@ -96,14 +98,6 @@ def depth_first_visit(startNode, timer):
     timer += 1
     startNode.set_finished_time(timer)
     return timer
-
-
-def count_based_single_point_floating_delta_application(aGraph, startNodeName):
-    pass
-
-
-def colour_based_single_point_floating_delta_application(aGraph, startNodeName):
-    pass
 
 
 def main():
