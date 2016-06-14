@@ -28,7 +28,8 @@ class Node:
           predecessor in a traversal or pathfinding operation.
         - discoveredTime, used in depth first traversals.
         - finishedTime, used in depth first traversals.
-        - delta, used as part of economic simulations.
+        - deltaPrev, used as part of economic simulations.
+        - deltaNew, used as part of economic simulations.
 
     The public methods for the Node class are as follows:
         - apply_delta(self)
@@ -52,6 +53,10 @@ class Node:
         - set_discovered_time(self, newTime)
         - get_finished_time(self)
         - set_finished_time(self, newTime)
+        - get_delta_prev(self)
+        - set_delta_prev(self, newDelta)
+        - get_delta_new(self)
+        - set_delta_new(self, newDelta)
     """
 
     def __init__(self, name, data=None):
@@ -64,7 +69,8 @@ class Node:
         self.searchedEdge = None
         self.discoveredTime = 0
         self.finishedTime = 0
-        self.delta = 0
+        self.deltaPrev = 0
+        self.deltaNew = 0
 
     def __str__(self):
         """Returns a formatted string summarizing the Node.
@@ -102,21 +108,25 @@ class Node:
         else:
             return False
 
-    def __add__(self, other):
-        """Adds other to the Node's delta attribute."""
-        self.delta += other
+    # def __add__(self, other):
+    #     """Adds other to the Node's delta attribute."""
+    #     self.delta += other
+    #
+    # def __iadd__(self, other):
+    #     """"""
+    #     self.delta += other
 
-    def __iadd__(self, other):
-        self.delta += other
-
-    def apply_delta(self):
-        """Adds the value of delta to the Node's data."""
-        self.data += self.delta
+    # def apply_delta(self):
+    #     """Adds the value of delta to the Node's data."""
+    #     self.data += self.delta
 
     def reset_traversal_data(self):
-        """resets the assorted data used in traversals to default
-        values.
+        """Resets traversal data to default values.
+
+        These default data values are the same as the initial values
+        that the class data is set to when a Node is instantiated.
         """
+
         self.colour = "white"
         self.distance = sys.maxsize
         self.searchedEdge = None
@@ -124,7 +134,7 @@ class Node:
         self.finishedTime = 0
 
     def get_data(self):
-        """Retrieves and returns the Node's data."""
+        """Returns the Node's data."""
         return self.data
 
     def set_data(self, newData):
@@ -132,7 +142,7 @@ class Node:
         self.data = newData
 
     def get_name(self):
-        """Retrieves and returns the Node's name."""
+        """Returns the Node's name."""
         return self.name
 
     def set_name(self, newName):
@@ -140,15 +150,22 @@ class Node:
         self.name = newName
 
     def get_all_edges(self):
-        """Retrieves and returns all TransformEdges that the Node is a
-        parent of.
+        """Returns all TransformEdges parented by the Node.
+
+        Parenting of an edge is defined as being listed as the
+        parentNode of a given TransformEdge in its class data.
         """
+
         return self.edges
 
     def get_edge_by_child(self, childNode):
-        """Retrieves and returns one of the Node's TransformEdges,
-        based on the childNode of that edge.
+        """Returns a parented TransformEdge based on its child.
+
+        All TransformEdge instances that the Node is a parent of are
+        checked against the childNode passed in. if the TransformEdge
+        has that Node as a child, it is returned.
         """
+
         for edge in self.edges:
             if edge.get_child_node() == childNode:
                 return edge
@@ -160,18 +177,22 @@ class Node:
         self.edges.append(newEdge)
 
     def add_existing_edge(self, edge):
-        """Designates the Node as the new parent of an existing
-        TransformEdge.
+        """Changes the parent of a TransformEdge to the current Node.
+
+        This does not also remove the TransformEdge from the previous
+        parent's edge list. The remove_edge(edge) method must also be
+        called on the previous parent.
         """
+
         self.edges.append(edge)
 
     def remove_edge(self, edge):
-        """Removes instance of TransformEdge from edges."""
+        """Removes instance of TransformEdge from edge list."""
         self.edges.remove(edge)
         del edge
 
     def get_colour(self):
-        """Retrieves and returns the Node's colour."""
+        """Returns the Node's colour."""
         return self.colour
 
     def set_colour(self, newColour):
@@ -179,19 +200,25 @@ class Node:
         self.colour = newColour
 
     def get_distance(self):
-        """Retrieves and returns the Node's distance from the start
-        Node.
+        """Returns the Node's distance from a start Node in a graph.
+
+        This distance is set as part of a breadth-first traversal, when
+        the Node is first discovered.
         """
+
         return self.distance
 
     def set_distance(self, newDistance):
-        """Changes the Node's distance from a start point in a
-        traversal to newDistance.
+        """Changes the Node's distance to newDistance.
+
+        This is used in breadth-first traversals, and is based on the
+        Node's distance from a start Node in the graph being traversed.
         """
+
         self.distance = newDistance
 
     def get_searched_edge(self):
-        """Retrieves and returns the edge searched to reach the Node."""
+        """Returns the edge searched to reach the Node."""
         return self.searchedEdge
 
     def set_searched_edge(self, newSearchedEdge):
@@ -199,29 +226,43 @@ class Node:
         self.searchedEdge = newSearchedEdge
 
     def get_discovered_time(self):
-        """Retrieves and returns the time at which the Node was
-        discovered.
-        """
+        """Returns the time at which the Node was discovered."""
         return self.discoveredTime
 
     def set_discovered_time(self, newTime):
-        """Changes the time at which the Node was discovered to newTime."""
+        """Changes the Node's discoveredTime to newTime."""
         self.discoveredTime = newTime
 
     def get_finished_time(self):
-        """Retrieves and returns the time at which exploration of the
-        Node was completed
+        """Returns the Node's finishedTime.
+
+        The finishedTime is the time at which the node was returned to
+        during a depth-first traversal, indicating that it was fully
+        explored.
         """
+
         return self.finishedTime
 
     def set_finished_time(self, newTime):
-        """Changes the time at which the Node was fully explored to
-        newTime.
-        """
+        """Changes finishedTime to newTime."""
+
         self.finishedTime = newTime
 
-    def get_delta(self):
-        return self.delta
+    def get_delta_prev(self):
+        """Returns the value of deltaPrev."""
+        return self.deltaPrev
+
+    def set_delta_prev(self, newDelta):
+        """Sets the value of deltaPrev to newDelta."""
+        self.deltaPrev = newDelta
+
+    def get_delta_new(self):
+        """Returns the value of deltaNew."""
+        return self.deltaNew
+
+    def set_delta_new(self, newDelta):
+        """Sets the value of deltaNew to newDelta."""
+        self.deltaNew = newDelta
 
 
 class TransformEdge:
@@ -248,6 +289,7 @@ class TransformEdge:
 
     The public methods for the TransformEdge class are as follows:
         - reverse(self)
+        - transform(self)
         - get_parent_node(self)
         - set_parent_node(self, newParentNode)
         - get_child_node(self)
@@ -279,6 +321,7 @@ class TransformEdge:
         function, and if relevant, whether the function has been
         inverted during a causality reversal operation.
         """
+
         edgeDetails = ["This is a directed edge between",
                        self.parentNode.get_name(), "and",
                        self.childNode.get_name(), "with transform type:",
@@ -298,6 +341,7 @@ class TransformEdge:
         The equality test verifies that the parent and child Nodes of
         two TransformEdges are identical.
         """
+
         if other is None:
             return False
         elif (self.parentNode == other.get_parent_node() and self.childNode ==
@@ -307,12 +351,13 @@ class TransformEdge:
             return False
 
     def __mul__(self, other):
-        """Multiplies the transformative functions of two TransformEdges.
+        """Combines the transformative functions of two TransformEdges.
 
         The function type is changed to whatever the combination of the
         transformative functions of the two TransformEdges would be.
         Additionally, a new parameter list is calculated and applied.
         """
+
         if self.transformType == "proportional":
             if other.get_transform_type() == "proportional":
                 self.transformType = "proportional"  # coefficients multiply
@@ -350,6 +395,7 @@ class TransformEdge:
         and then the edge is removed from the edge list of the previous
         parent Node, and added to the edge list of the new parent Node.
         """
+
         tempParent = self.parentNode
         tempChild = self.childNode
         self.parentNode = tempChild
@@ -358,6 +404,14 @@ class TransformEdge:
         self.parentNode.add_existing_edge(self)
 
     def transform(self):
+        """Selects and applies a transformative function.
+
+        The selection of the transformative functions is based on
+        matching the transformType to a set of predefined functions,
+        and then passing in the arguments that are part of the
+        TransformEdge's class data.
+        """
+
         if self.transformType == "proportional":
             self.childNode += int(self.parentNode.get_delta()
                                * self.transformArgs[0])
@@ -389,6 +443,7 @@ class TransformEdge:
         will be true, and the method will return True. If the function
         has not been inverted, the function will return False.
         """
+
         return self.invertedFlag
 
     def change_invert(self):
@@ -405,13 +460,14 @@ class TransformEdge:
 
 
 def main():
-    """Test script for the Node and TransformEdge classes in the module.
+    """Test script for the Node and TransformEdge classes.
 
     Five Nodes are instantiated, and TransformEdges between them are
     generated, with an assortment of transformative functions assigned
     to the TransformEdges. After this, all TransformEdges and all Nodes
     are printed to the screen, completing the test script.
     """
+
     node1 = Node("ONE", 42)
     node2 = Node("TWO", 8)
     node3 = Node("THREE", 50)

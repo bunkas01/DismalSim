@@ -4,13 +4,37 @@ import digraph
 
 __author__ = "Ashleigh"
 
-"""Placeholder Docstring"""
+"""Assorted algorithms for testing DiGraph Functionality.
+
+Three of the functions in the module are representative of the actual
+testing algorithms, the rest are assorted helper functions. The
+wyatt_cauasality_reversal function is named in reference to the
+causality reversal procedure used by Geoffrey Wyatt in the text that
+serves as the basis for the economic simulations this project is
+intended to be used for. The other two testing algorithms are just
+basic breadth-first and depth-first traversals.
+
+Functions:
+    - wyatt_causality_reversal, reverses causal relationship between
+      two given Nodes.
+    - find_node_path, given a list of edges between two given Nodes,
+      determines all Nodes traversed along that path.
+    - adjust_covnerging_edges, adjusts edges during causality reversal.
+    - brute_find_path, performs a modified depth-first search.
+    - basic_breadth_first_traversal, traverses the graph from a
+      designated start Node.
+    - reset_nodes, resets traversal data associated with the graph's
+      Nodes.
+    - basic_depth_first_traversal, traverses the graph from a
+      designated start Node.
+    - depth_first_visit, called recursively in a depth-first traversal.
+"""
 
 
 def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
-    """Reverses causality between two nodes, and modifies graph in
-    place.
+    """Reverses causality between two nodes, modifies graph.
     """
+
     emptyPath = []
     startNode = aGraph.get_node(startNodeName)
     endNode = aGraph.get_node(endNodeName)
@@ -25,7 +49,7 @@ def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
 
 
 def find_node_path(edgePath):
-    """helper function for wyatt_causality_reversal()"""
+    """helper function for wyatt_causality_reversal."""
     nodePath = []
     nodePath.append(edgePath[0].get_parent_node())
     for edge in edgePath:
