@@ -32,7 +32,7 @@ class Node:
         - deltaNew, used as part of economic simulations.
 
     The public methods for the Node class are as follows:
-        - apply_delta(self)
+        - apply_new_delta(self)
         - reset_traversal_data(self)
         - get_data(self)
         - set_data(self, newData)
@@ -108,17 +108,11 @@ class Node:
         else:
             return False
 
-    # def __add__(self, other):
-    #     """Adds other to the Node's delta attribute."""
-    #     self.delta += other
-    #
-    # def __iadd__(self, other):
-    #     """"""
-    #     self.delta += other
-
-    # def apply_delta(self):
-    #     """Adds the value of delta to the Node's data."""
-    #     self.data += self.delta
+    def apply_new_delta(self):
+        """Adds the value of delta to the Node's data."""
+        self.data += self.deltaNew
+        self.deltaPrev = self.deltaNew
+        self.deltaNew = 0
 
     def reset_traversal_data(self):
         """Resets traversal data to default values.
@@ -263,6 +257,10 @@ class Node:
     def set_delta_new(self, newDelta):
         """Sets the value of deltaNew to newDelta."""
         self.deltaNew = newDelta
+
+    def add_to_delta_new(self, moreDelta):
+        """Adds moreDelta to deltaNew."""
+        self.deltaNew += moreDelta
 
 
 class TransformEdge:
@@ -413,8 +411,9 @@ class TransformEdge:
         """
 
         if self.transformType == "proportional":
-            self.childNode += int(self.parentNode.get_delta()
-                               * self.transformArgs[0])
+            prevDelta = self.parentNode.get_delta_prev()
+            calcDelta = prevDelta * self.transformArgs[0]
+            self.childNode.add_to_delta_new(calcDelta)
 
     def get_parent_node(self):
         """Returns a reference to the parent Node."""

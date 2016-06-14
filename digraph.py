@@ -36,6 +36,7 @@ class DiGraph:
         - add_node(self, name, data=None)
         - get_max_distance(self)
         - set_max_distance(self, newDistance)
+        - apply_all_new_deltas(self)
     """
 
     def __init__(self):
@@ -117,6 +118,11 @@ class DiGraph:
     def set_max_distance(self, newDistance):
         """Changes the graph's maxDistance to newDistance."""
         self.maxDistance = newDistance
+
+    def apply_all_new_deltas(self):
+        """Applies the deltaNew of every Node in the graph to itself."""
+        for node in self.nodes:
+            node.apply_new_delta()
 
 
 def main():

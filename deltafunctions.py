@@ -26,9 +26,22 @@ __author__ = "Ashleigh"
 #     pass
 
 
-def multicount_delta_application(aGraph, maxCount, initDeltas):
+def multicount_delta_application(aGraph, maxCount, initDeltaDict):
     """Multi-point count-mediated delta application algorithm."""
-    pass
+    count = 0
+    for key in initDeltaDict:
+        if key in aGraph:
+            targetNode = aGraph.get_node(key)
+            initDelta = initDeltaDict[key]
+            targetNode.set_delta_new(initDelta)
+    aGraph.apply_all_new_deltas()
+    count += 1
+    while count <= maxCount:
+        for node in aGraph.get_all_nodes():
+            for edge in node.get_all_edges():
+                edge.transform()
+        aGraph.apply_all_new_deltas()
+        count += 1
 
 
 def main():
@@ -50,23 +63,8 @@ def main():
     print(aGraph)
     print("\n")
 
-    # graphtestingalgorithms.basic_breadth_first_traversal(aGraph, "A")
-    # print(aGraph.get_max_distance())
-    # print(aGraph)
-    # for edge in aGraph.get_all_edges():
-    #     print(edge)
-    # print("\n")
-    # count_sinpo_dap(aGraph, "A", 15)
-    # print(aGraph)
-    # graphtestingalgorithms.reset_nodes(aGraph)
-
-    # graphtestingalgorithms.basic_breadth_first_traversal(aGraph, "D")
-    # print(aGraph.get_max_distance())
-    # print(aGraph)
-    # print("\n")
-    # count_sinpo_dap(aGraph, "D", 15)
-    # print(aGraph)
-    # graphtestingalgorithms.reset_nodes(aGraph)
+    multicount_delta_application(aGraph, 4, {"A": 120, "E": 120})
+    print(aGraph)
 
 
 if __name__ == '__main__':
