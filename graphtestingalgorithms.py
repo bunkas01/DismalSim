@@ -33,6 +33,23 @@ Functions:
 
 def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
     """Reverses causality between two nodes, modifies graph.
+
+    The graph is modified in place, with the directionality reversal
+    occurring within the function proper, but the adjustment of
+    converging edges is done by a helper function. The other helper
+    functions are primarily focused on pathfinding. This function
+    mutates the graph in place, and has no return value.
+
+    The function arguments are as follows:
+        - aGraph, the graph for which causality is to be reversed.
+        - startNodeName, the name of one of the Node's which causality
+          is to be reversed between. More specifically, it represents
+          the initial 'source' of the flow of causality
+        - endNodeName, the name of the other Node that causality is to
+          be reversed between. More specifically, it represents the
+          initial 'sink' of the flow of causality.
+        - The function does not support positional or keyword
+          arguments.
     """
 
     emptyPath = []
@@ -49,7 +66,19 @@ def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
 
 
 def find_node_path(edgePath):
-    """helper function for wyatt_causality_reversal."""
+    """helper function for wyatt_causality_reversal.
+
+    This function takes the list of edges between two Nodes, and
+    generates a list of all Nodes that would be traversed between the
+    start and end points. This list is returned.
+
+    The function arguments are as follows:
+        - edgePath, the list of edges between the start and end Nodes
+          in the causality reversal.
+        - the function does not support positional or keyword
+          arguments.
+    """
+
     nodePath = []
     nodePath.append(edgePath[0].get_parent_node())
     for edge in edgePath:
@@ -58,7 +87,24 @@ def find_node_path(edgePath):
 
 
 def adjust_converging_edges(aGraph, edgePath, nodePath):
-    """Helper function for wyatt_causality_reversal()"""
+    """Helper function for wyatt_causality_reversal.
+
+    This function takes a list of edges and Nodes traversed between two
+    points on a graph, finds all edges that converge onto Nodes in the
+    path (and also aren't part of the path), and adjusts them 'down'
+    the causality flow, as outlined in Wyatt's text. This modification
+    occurs in place, and the function has no return value.
+
+    The function arguments are as follows:
+        - aGraph, the graph to be modified.
+        - edgePath, the list of edges traversed between a 'source' and
+          'sink' Node.
+        - nodePath, the list of Nodes traversed when following the
+          edgePath.
+        - the function does not support positional or keyword
+          arguments.
+    """
+
     allEdges = aGraph.get_all_edges()
     for edge in allEdges:
         if edge not in edgePath and edge.get_child_node() in nodePath:
@@ -71,7 +117,25 @@ def adjust_converging_edges(aGraph, edgePath, nodePath):
 
 
 def brute_find_path(aGraph, startNode, endNode, edgePath):
-    """Helper function for wyatt_causality_reversal()"""
+    """Helper function for wyatt_causality_reversal.
+
+    This function takes a graph, start and end Nodes, and an empty list
+    for the path. From here, it uses a modified depth-first search to
+    locate the end position from the start position, and traces the
+    path taken by the branch of the depth-first tree back, adding the
+    edges traversed to the edge path, before returning the list of
+    edges. Since the algorithm will explore all possible paths if
+    necessary, the search is a brute-force one.
+
+    The function arguments are as follows:
+        - aGraph, the graph to be brute-force searched.
+        - startNode, the Node at which the search will start.
+        - endNode, the Node being searched for.
+        - edgePath, the empty list to add edges in the path to.
+        - the function does not support positional or keyword
+          arguments.
+    """
+
     for edge in startNode.get_all_edges():
         targetNode = edge.get_child_node()
         targetNode.set_searched_edge(edge)
@@ -87,6 +151,21 @@ def brute_find_path(aGraph, startNode, endNode, edgePath):
 
 
 def basic_breadth_first_traversal(aGraph, startNodeName):
+    """A simple breadth-first traversal algorithm for the DiGraph.
+
+    The traversal takes a graph to traverse, and a given start Node. It
+    uses the colour of the Nodes to determine whether they are valid
+    targets for exploration, as well as sets the distance from the
+    start Node as it runs. It simply traverses the graph, and does not
+    search or significantly modify it, and has no return value.
+
+    The function arguments are as follows:
+        - aGraph, the graph to be traversed.
+        - startNodeName, the name of the Node to begin traversing from.
+        - the function does not support positional or keyword
+          arguments.
+    """
+
     searchQueue = []
     startNode = aGraph.get_node(startNodeName)
     startNode.set_distance(0)
@@ -106,17 +185,65 @@ def basic_breadth_first_traversal(aGraph, startNodeName):
 
 
 def reset_nodes(aGraph):
+    """Resets traversal related data for all Nodes in a graph.
+
+    The function takes a graph, and modifies it in place by calling the
+    reset_traversal_data method for Nodes within the graph. After this,
+    it resets the graph's maximum distance to the default value of the
+    system's maximum integer. Since it modifies the graph in place, the
+    function has no return value.
+
+    The function arguments are as follows:
+        - aGraph, the graph in need of having its traversal data reset.
+        - the function does not support positional or keyword
+          arguments.
+    """
+
     for node in aGraph.get_all_nodes():
         node.reset_traversal_data()
     aGraph.set_max_distance(sys.maxsize)
 
 
 def basic_depth_first_traversal(aGraph, startNodeName):
+    """A simple depth-first traversal algorithm for the DiGraph.
+
+    Given the name of a start Node within a graph, the function
+    traverses the graph along a depth-first tree, setting discovery and
+    finishing times as appropriate. Most of the traversal is done by a
+    helper function, with this serving primarily as a wrapper function.
+    Part of this includes initializing a timer, to be passed to the
+    depth_first_visit function during the actual traversal.
+
+    The function arguments are as follows:
+        - aGraph, the graph to be traversed.
+        - startNodeName, the name of the Node to begin the traversal
+          from.
+        - the function does not support positional or keyword
+          arguments.
+    """
+
     startNode = aGraph.get_node(startNodeName)
     timer = 0
     depth_first_visit(startNode, timer)
 
 def depth_first_visit(startNode, timer):
+    """Helper function for basic_depth_first_traversal.
+
+    The function calls itself recursively, visiting the first
+    undiscovered Node (indicated by the default discovery time of 0)
+    available to the current function call's startNode. The timer is
+    returned between calls of the function, to keep the discovery and
+    finishing times from colliding between branches of the depth-first
+    tree.
+
+    The function arguments are as follows:
+        - startNode, the Node to search for adjacent Nodes from.
+        - timer, the timer keeping track of discovery and finish times
+          across recursive calls of the function.
+        - the function does not support positional or keyword
+          arguments.
+    """
+
     timer += 1
     startNode.set_discovered_time(timer)
     for edge in startNode.get_all_edges():
@@ -129,6 +256,19 @@ def depth_first_visit(startNode, timer):
 
 
 def main():
+    """Test script for the assorted graph testing functions.
+
+    A graph is instantiated, and five Nodes (A, B, C, D, E) are added
+    to it. Four edges are added, and then the graph, and all edges
+    contained within the graph, are printed to the screen. Next, the
+    wyatt_causality_reversal function is called, modifying the graph.
+    The modified graph is printed to the screen, and then yet another
+    edge is added, to make all nodes discoverable from E in the
+    traversals. Finally, both breadth-first and depth-first traversals
+    of the graph are completed, with the graph printed after each one
+    to demonstrate their effects.
+    """
+
     aGraph = digraph.DiGraph()
     aGraph.add_node("A")
     aGraph.add_node("B")

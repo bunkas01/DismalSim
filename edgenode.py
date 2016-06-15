@@ -1,5 +1,7 @@
 import sys
 
+import transformfunctions
+
 __author__ = "Ashleigh"
 
 """Contains the Node and TransformEdge classes for a graph.
@@ -276,9 +278,9 @@ class TransformEdge:
         - childNode, the node that is the target of the directed edge.
         - transformType, a string describing the transformative
           function that the TransformEdge instance helps represent.
-        - transformArgNames, the names of the parameters for the
+        - targNames, the names of the parameters for the
           TransformEdge's transformative function.
-        - transformArgs, the parameters of the transformative function
+        - targs, the parameters of the transformative function
           linked to the TransformEdge instance.
         - invertedFlag, a flag indicating that the output from the
           TransformEdge's transformative function should be inverted
@@ -305,8 +307,8 @@ class TransformEdge:
         self.parentNode = parentNode
         self.childNode = childNode
         self.transformType = transformType
-        self.transformArgNames = paramNames
-        self.transformArgs = paramVals
+        self.targNames = paramNames
+        self.targs = paramVals
         self.invertedFlag = False
         self.negatedFlag = False
 
@@ -325,9 +327,9 @@ class TransformEdge:
                        self.childNode.get_name(), "with transform type:",
                        self.transformType, "\n",
                        "and the following parameters:"]
-        for index in range(0, len(self.transformArgNames)):
-            edgeDetails.append(str(self.transformArgNames[index]))
-            edgeDetails.append(str(self.transformArgs[index]))
+        for index in range(0, len(self.targNames)):
+            edgeDetails.append(str(self.targNames[index]))
+            edgeDetails.append(str(self.targs[index]))
         if self.invertedFlag:
             edgeDetails.extend(["\n", "The edge transform function has been "
                                       "inverted as part of causality reversal"])
@@ -412,7 +414,18 @@ class TransformEdge:
 
         if self.transformType == "proportional":
             prevDelta = self.parentNode.get_delta_prev()
-            calcDelta = prevDelta * self.transformArgs[0]
+            calcDelta = transformfunctions.proportional_transform(prevDelta,
+                                                                  self.targs)
+            self.childNode.add_to_delta_new(calcDelta)
+        elif self.transformType == "linear":
+            prevDelta = self.parentNode.get_delta_prev()
+            calcDelta = transformfunctions.linear_transform(prevDelta,
+                                                            self.targs)
+            self.childNode.add_to_delta_new(calcDelta)
+        elif self.transformType == "polynomial":
+            prevDelta = self.parentNode.get_delta_prev()
+            calcDelta = transformfunctions.polynomial_transform(prevDelta,
+                                                                self.targs)
             self.childNode.add_to_delta_new(calcDelta)
 
     def get_parent_node(self):

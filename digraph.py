@@ -6,6 +6,13 @@ __author__ = "Ashleigh"
 
 """Contains the implementation of a directed graph.
 
+This DiGraph uses custom Node classes for its vertices, and these Nodes
+are stored in a list as class data. The DiGraph itself does not keep
+track of the edges present, as adjacency is maintained as class data of
+the Nodes, not the graph. It can access the edges through the Nodes.
+Also notable, is that the edges themselves are instances of a separate
+class, TransformEdge, and not simple adjacency lists.
+
 Classes:
     - DiGraph: a basic directed graph.
 """
@@ -50,6 +57,9 @@ class DiGraph:
             if node.get_name() == nodeName:
                 return True
         return False
+
+    def __len__(self):
+        return len(self.nodes)
 
     def __str__(self):
         """Returns a formatted string containing the Node strings.

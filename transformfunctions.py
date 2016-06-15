@@ -1,5 +1,7 @@
 __author__ = "Linnea"
 
+"""Placeholder Docstring."""
+
 
 def proportional_transform(delta, parameters):
     """Multiplies a delta by a proportional coefficient."""
