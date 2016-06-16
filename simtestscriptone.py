@@ -1,5 +1,6 @@
-import deltafunctions
 import digraph
+from deltafunctions import multicount_delta_application
+from deltafunctions import write_output_to_spreadsheet
 
 __author__ = "Ashleigh"
 
@@ -28,7 +29,8 @@ def main():
 
     initChanges = {"G": 114.4, "T": 50.4, "C": 134.6, "Y": 194.4, "B": 81.866,
                    "X": 43.109}
-    deltafunctions.multicount_delta_application(miniMacro, 10, initChanges)
+    simOutput = multicount_delta_application(miniMacro, 100, initChanges)
+    write_output_to_spreadsheet("Sim_test_data_001", simOutput)
 
 
 if __name__ == '__main__':

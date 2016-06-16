@@ -1,3 +1,5 @@
+from openpyxl import Workbook
+
 import digraph
 
 __author__ = "Ashleigh"
@@ -7,17 +9,21 @@ __author__ = "Ashleigh"
 The Delta Application Functions are what allows the directed graph
 implementation used in this project to be used as part of an economic
 simulation, as they govern how changes spread between Nodes that
-represent components of the macroeconomy.
+represent components of the macroeconomy. There is also another
+function intended to enable the output data from the delta application
+algorithms to be written to Excel spreadsheets, for ease of use.
 
 Currently, only a single delta application function has been
 implemented, though there will be more to come, some of which may just
 be modifications or complications of the multicount_delta_application
-function initially implemented. Additionally, helper functions to write
-function output to text files may be added.
+function initially implemented.
 
 Functions:
     - multicount_delta_application, applies changes from multiple
       sources over time.
+    - write_output_to_spreadsheet, takes a list-of-lists containing the
+      output data from a delta application, and saves it externally as
+      a spreadsheet.
 """
 
 
@@ -45,7 +51,7 @@ def multicount_delta_application(aGraph, maxCount, initDeltaDict):
         - initDeltaDict, a dictionary of the initial changes to apply
           to start the simulation, with the names of the Nodes to which
           changes should be applied serving as keys.
-        - the function does not support positional or keyword
+        - The function does not support positional or keyword
           arguments.
     """
 
@@ -80,6 +86,41 @@ def multicount_delta_application(aGraph, maxCount, initDeltaDict):
     return nodeDataList
 
 
+def write_output_to_spreadsheet(filename, dataList):
+    """Writes the data contained in a list to an Excel Spreadsheet.
+
+    This function uses the openpyxl package to create a spreadsheet,
+    followed by iterating over the contents of the sublists in the
+    dataList, and writing them to the cells of the spreadsheet. Each
+    sublist is maintained in a separate column of the spreadhseet.
+    After the spreadsheet is fully created, it is saved with the given
+    filename as a .xlsx file.
+
+    The function arguments are as follows:
+        - filename, the name of the final file after the spreadsheet
+          has been created.
+        - dataList, the list-of-lists containing the assorted output
+          data from a simulation run.
+        - The function does not support positional or keyword
+          arguments.
+    """
+
+    filename += ".xlsx"
+    dataBook = Workbook()
+    dataSheet = dataBook.active
+
+    colCount = 1
+    rowCount = 1
+    for sublist in dataList:
+        for item in sublist:
+            cell = dataSheet.cell(column=colCount, row=rowCount)
+            cell.value = item
+            rowCount += 1
+        rowCount = 1
+        colCount += 1
+    dataBook.save(filename)
+
+
 def main():
     """Testing Script for delta application functions.
 
@@ -93,6 +134,9 @@ def main():
     multicount_delta_application algorithm used on it, and is printed
     to the screen. Additionally, the list of change data returned by
     the algorithm is also printed to the screen.
+
+    The change data in the list is then written to a spreadsheet, to
+    test the ability to save output.
     """
 
     aGraph = digraph.DiGraph()
@@ -134,6 +178,7 @@ def main():
     print(bGraph)
     for subList in allData:
         print(subList)
+    write_output_to_spreadsheet("test", allData)
 
 
 if __name__ == '__main__':
