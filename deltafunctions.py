@@ -6,7 +6,7 @@ __author__ = "Ashleigh"
 
 """Assorted algorithms for calculating and applying changes to graphs.
 
-The Delta Application Functions are what allows the directed graph
+The Delta Application Functions are what allows [allow] the directed graph
 implementation used in this project to be used as part of an economic
 simulation, as they govern how changes spread between Nodes that
 represent components of the macroeconomy. There is also another
@@ -30,7 +30,7 @@ Functions:
 def multicount_delta_application(aGraph, maxCount, initDeltaDict):
     """Multiple-point count-mediated delta application algorithm.
 
-    Given a graph, a maximum system count to run the algorithm for, and
+    Given a graph, a maximum system count to run the algorithm for [for which to run the algorithm], and
     a dictionary of initial delta values, the function modifies the
     graph in place, cyclically applying changes to any given Node based
     on the changes that the Node's parent Nodes experienced during the
@@ -42,7 +42,7 @@ def multicount_delta_application(aGraph, maxCount, initDeltaDict):
     values, and each Node has its own sublist of values. That
     list-of-lists is returned at the end of the function, to provide
     a more accessible log of all the changes that occurred during the
-    algorithms runtime.
+    algorithms [algorithm's] runtime.
 
     The function arguments are as follows:
         - aGraph, the graph to calculate and apply changes to.
@@ -91,7 +91,7 @@ def write_output_to_spreadsheet(filename, dataList):
 
     This function uses the openpyxl package to create a spreadsheet,
     followed by iterating over the contents of the sublists in the
-    dataList, and writing them to the cells of the spreadsheet. Each
+    dataList, [delete comma] and writing them to the cells of the spreadsheet. Each
     sublist is maintained in a separate column of the spreadhseet.
     After the spreadsheet is fully created, it is saved with the given
     filename as a .xlsx file.
@@ -127,15 +127,15 @@ def main():
     A graph is instantiated, and five Nodes (A, B, C, D, E) are added
     to it. Assorted TransformEdges are created, all with the same
     transform type and transform parameters. This graph is printed to
-    the screen, then the multicount_delta_application function is
+    the screen, [replace comma with semicolon] then the multicount_delta_application function is
     called on it, followed by being printed to the screen again. After
-    this, a second, similar graph is instantiated, and has Nodes and
+    this, a second, similar graph is instantiated, [delete comma] and has Nodes and
     TransformEdges added. This graph also has the
-    multicount_delta_application algorithm used on it, and is printed
+    multicount_delta_application algorithm used on it, [delete comma] and is printed
     to the screen. Additionally, the list of change data returned by
-    the algorithm is also printed to the screen.
+    the algorithm is also [the combination of "additionally" and "also" is redundant] printed to the screen.
 
-    The change data in the list is then written to a spreadsheet, to
+    The change data in the list is [are] then written to a spreadsheet, to
     test the ability to save output.
     """
 
