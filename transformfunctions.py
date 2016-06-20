@@ -1,6 +1,14 @@
 __author__ = "Linnea"
 
-"""Placeholder Docstring."""
+"""Assorted transformative functions for TransformEdges to call.
+
+Functions:
+    - proportional_transform
+    - linear_transform
+    - polynomial_transform
+    - exponential_transform
+    - foil
+"""
 
 
 def proportional_transform(delta, parameters):
