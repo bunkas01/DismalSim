@@ -43,7 +43,10 @@ def exponential_transform(delta, parameters):
 
 
 def foil(x, polynomialOne, polynomialTwo):
-    """Attempts to FOIL things"""
+    """Multiplies two polynomials together according to the FOIL
+    method.
+    """
+
     subTotal = 0
     total = 0
     while len(polynomialOne) != 0:

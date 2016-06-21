@@ -10,7 +10,7 @@ This DiGraph uses custom Node classes for its vertices, and these Nodes
 are stored in a list as class data. The DiGraph itself does not keep
 track of the edges present, as adjacency is maintained as class data of
 the Nodes, not the graph. It can access the edges through the Nodes.
-Also notable, is that the edges themselves are instances of a separate
+Also notable is that the edges themselves are instances of a separate
 class, TransformEdge, and not simple adjacency lists.
 
 Classes:
@@ -19,17 +19,17 @@ Classes:
 
 
 class DiGraph:
-    """The DiGraph class, a directed graph intended for ecconomic sims.
+    """The DiGraph class, a directed graph intended for economic sims.
 
     The DiGraph class functions primarily as a container for Nodes.
     Most of the class methods for the DiGraph are just wrappers around
     the equivalent methods of the Node or TransformEdge classes.
     Additionally, the DiGraph usually takes the name of any relevant
-    Nodes, and looks up the Nodes in its list of Nodes, rather than
-    take direct references to Nodes.
+    Nodes and looks up the Nodes in its list of Nodes, rather than
+    taking direct references to Nodes.
 
     The instance variables for the DiGraph class are as follows:
-        - nodes, a list of nodes within the graph.
+        - nodes, a list of Nodes within the graph.
         - maxDistance, the maximum distance reached in a breadth-first
           traversal of the graph.
 
@@ -111,7 +111,7 @@ class DiGraph:
                 return node
 
     def add_node(self, name, data=None):
-        """Initializes a Node, and adds it to the graph."""
+        """Initializes a Node and adds it to the graph."""
         newNode = edgenode.Node(name, data)
         self.nodes.append(newNode)
 
