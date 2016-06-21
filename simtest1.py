@@ -30,10 +30,10 @@ miniMacro.add_edge("Y", "T", "proportional", ["coefficient"], [.29])
 miniMacro.add_edge("T", "C", "proportional", ["coefficient"], [-.93])
 miniMacro.add_edge("Y", "C", "proportional", ["coefficient"], [.93])
 miniMacro.add_edge("Y", "B", "proportional", ["coefficient"], [-.1])
-print(miniMacro)
-print("\n")
+print(miniMacro, "\n")
 
 initChanges = {"G": 9.53, "T": 4.2, "C": 11.22, "Y": 16.2, "B": 6.82,
                "X": 3.6}
 simOutput = multicount_delta_application(miniMacro, 100, initChanges)
-write_output_to_spreadsheet("Sim_test_data_001", simOutput)
+write_output_to_spreadsheet("sim_test_data_001", simOutput)
+print(miniMacro)

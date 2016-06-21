@@ -1,5 +1,6 @@
 import sys
 
+import timetransforms
 import transformfunctions
 
 __author__ = "Ashleigh"
@@ -403,7 +404,7 @@ class TransformEdge:
         self.childNode.remove_edge(self)
         self.parentNode.add_existing_edge(self)
 
-    def transform(self):
+    def transform(self, currentCount=None):
         """Selects and applies a transformative function.
 
         The selection of the transformative functions is based on
@@ -426,6 +427,11 @@ class TransformEdge:
             prevDelta = self.parentNode.get_delta_prev()
             calcDelta = transformfunctions.polynomial_transform(prevDelta,
                                                                 self.targs)
+            self.childNode.add_to_delta_new(calcDelta)
+        elif self.transformType == "propcount":
+            prevDelta = self.parentNode.get_delta_prev()
+            calcDelta = timetransforms.proportional_count(prevDelta, self.targs,
+                                                          currentCount)
             self.childNode.add_to_delta_new(calcDelta)
 
     def get_parent_node(self):

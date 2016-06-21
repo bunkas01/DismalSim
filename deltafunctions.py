@@ -80,7 +80,7 @@ def multicount_delta_application(aGraph, maxCount, initDeltaDict):
     while count <= maxCount:
         for node in aGraph.get_all_nodes():
             for edge in node.get_all_edges():
-                edge.transform()
+                edge.transform(count)
         aGraph.apply_all_new_deltas()
         i = 0
         for node in aGraph.get_all_nodes():
@@ -135,7 +135,7 @@ def exocount_delta_application(aGraph, maxCount, countFeedDict):
         if count != 0:
             for node in aGraph.get_all_nodes():
                 for edge in node.get_all_edges():
-                    edge.transform()
+                    edge.transform(count)
         aGraph.apply_all_new_deltas()
         i = 0
         for node in aGraph.get_all_nodes():
@@ -180,7 +180,7 @@ def exonode_delta_application(aGraph, maxCount, countFeedDict):
         if count != 0:
             for node in aGraph.get_all_nodes():
                 for edge in node.get_all_edges():
-                    edge.transform()
+                    edge.transform(count)
         if count in countFeedDict:
             deltaDict = countFeedDict[count]
             for key in deltaDict:
