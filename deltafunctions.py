@@ -111,8 +111,8 @@ def exocount_delta_application(aGraph, maxCount, countFeedDict):
 
     The function arguments are as follows:
         - aGraph, the graph to calculate and apply changes to.
-        - maxCount, the maximum number of cycles to run the algorithm
-          for.
+        - maxCount, the maximum number of cycles for which to run the
+          algorithm.
         - countFeedDict, the dict-in-dict containing the relevant
           changes for a given system count.
         - The function does not support positional or keyword
@@ -149,21 +149,21 @@ def exocount_delta_application(aGraph, maxCount, countFeedDict):
 def exonode_delta_application(aGraph, maxCount, countFeedDict):
     """Delta application function with exogenized variables.
 
-    This delta application function is minor modification of the
+    This delta application function is a minor modification of the
     exocount_delta_application function; the order in which external
     changes are applied and edge transforms are calculated is
     reversed, and the application of external changes is deliberately
     structured to override the changes produced by edge transforms on
     the relevant Nodes. This overriding of 'normal' changes is what
     allows the function to support Nodes being exogenized. A useful
-    implication of this change is that allows system counts within the
-    algorithm to maintain parity with the real changes in time seen in
-    the empirical data the sim is being compared to.
+    implication of this change is that it allows system counts within
+    the algorithm to maintain parity with the real changes in time seen
+    in the empirical data to which the sim is being compared.
 
     The function arguments are as follows:
         - aGraph, the graph to calculate and apply changes to.
-        - maxCount, the maximum number of cycles to run the algorithm
-          for.
+        - maxCount, the maximum number of cycles for which to run the
+          algorithm.
         - countFeedDict, the dict-in-dict containing the relevant
           changes for a given system count.
         - The function does not support positional or keyword
@@ -203,7 +203,7 @@ def write_output_to_spreadsheet(filename, dataList):
     This function uses the openpyxl package to create a spreadsheet,
     followed by iterating over the contents of the sublists in the
     dataList and writing them to the cells of the spreadsheet. Each
-    sublist is maintained in a separate column of the spreadhseet.
+    sublist is maintained in a separate column of the spreadsheet.
     After the spreadsheet is fully created, it is saved with the given
     filename as a .xlsx file.
 
@@ -251,7 +251,7 @@ def main():
     test the ability to save output. The spreadsheet is saved in .xlsx
     format.
 
-    Finally, the first graph has its data reset to the starting values,
+    Finally, the first graph has its data reset to the starting values
     and is then used to test the exonode_delta_application function.
     """
 
