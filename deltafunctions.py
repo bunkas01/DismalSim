@@ -60,9 +60,7 @@ def multicount_delta_application(aGraph, maxCount, initDeltaDict):
 
     nodeDataList = []
     for node in aGraph.get_all_nodes():
-        nodeData = []
-        nodeData.append(node.get_name())
-        nodeData.append(node.get_data())
+        nodeData = [node.get_name(), node.get_data()]
         nodeDataList.append(nodeData)
     count = 0
     i = 0
@@ -123,9 +121,7 @@ def exocount_delta_application(aGraph, maxCount, countFeedDict):
 
     nodeDataList = []
     for node in aGraph.get_all_nodes():
-        nodeData = []
-        nodeData.append(node.get_name())
-        nodeData.append(node.get_data())
+        nodeData = [node.get_name(), node.get_data()]
         nodeDataList.append(nodeData)
     count = 0
 
@@ -140,6 +136,57 @@ def exocount_delta_application(aGraph, maxCount, countFeedDict):
             for node in aGraph.get_all_nodes():
                 for edge in node.get_all_edges():
                     edge.transform()
+        aGraph.apply_all_new_deltas()
+        i = 0
+        for node in aGraph.get_all_nodes():
+            nodeDataList[i].append(node.get_data())
+            i += 1
+        count += 1
+
+    return nodeDataList
+
+
+def exonode_delta_application(aGraph, maxCount, countFeedDict):
+    """Delta application function with exogenized variables.
+
+    This delta application function is minor modification of the
+    exocount_delta_application function; the order in which external
+    changes are applied and edge transforms are calculated is
+    reversed, and the application of external changes is deliberately
+    structured to override the changes produced by edge transforms on
+    the relevant Nodes. This overriding of 'normal' changes is what
+    allows the function to support Nodes being exogenized. A useful
+    implication of this change is that allows system counts within the
+    algorithm to maintain parity with the real changes in time seen in
+    the empirical data the sim is being compared to.
+
+    The function arguments are as follows:
+        - aGraph, the graph to calculate and apply changes to.
+        - maxCount, the maximum number of cycles to run the algorithm
+          for.
+        - countFeedDict, the dict-in-dict containing the relevant
+          changes for a given system count.
+        - The function does not support positional or keyword
+          arguments.
+    """
+
+    nodeDataList = []
+    for node in aGraph.get_all_nodes():
+        nodeData = [node.get_name(), node.get_data()]
+        nodeDataList.append(nodeData)
+    count = 0
+
+    while count <= maxCount:
+        if count != 0:
+            for node in aGraph.get_all_nodes():
+                for edge in node.get_all_edges():
+                    edge.transform()
+        if count in countFeedDict:
+            deltaDict = countFeedDict[count]
+            for key in deltaDict:
+                targetNode = aGraph.get_node(key)
+                aDelta = deltaDict[key]
+                targetNode.set_delta_new(aDelta)
         aGraph.apply_all_new_deltas()
         i = 0
         for node in aGraph.get_all_nodes():
@@ -203,6 +250,9 @@ def main():
     The change data in the list are then written to a spreadsheet, to
     test the ability to save output. The spreadsheet is saved in .xlsx
     format.
+
+    Finally, the first graph has its data reset to the starting values,
+    and is then used to test the exonode_delta_application function.
     """
 
     aGraph = digraph.DiGraph()
@@ -218,8 +268,7 @@ def main():
     aGraph.add_edge("C", "E", "proportional", ["coefficient"], [0.75])
     aGraph.add_edge("D", "E", "proportional", ["coefficient"], [0.75])
     aGraph.add_edge("E", "B", "proportional", ["coefficient"], [0.75])
-    print(aGraph)
-    print("\n")
+    print(aGraph, "\n")
     aDict = {"A": 50, "B": 50}
     bDict = {"A": 30, "E": 30}
     cDict = {"B": 40}
@@ -242,13 +291,27 @@ def main():
     bGraph.add_edge("C", "E", "proportional", ["coefficient"], [0.5])
     bGraph.add_edge("D", "E", "proportional", ["coefficient"], [0.5])
     bGraph.add_edge("E", "B", "proportional", ["coefficient"], [0.5])
-    print(bGraph)
-    print("\n")
+    print(bGraph, "\n")
     allData = multicount_delta_application(bGraph, 20, {"A": 120, "E": 120})
     print(bGraph)
     for subList in allData:
         print(subList)
-    write_output_to_spreadsheet("test", allData)
+    # write_output_to_spreadsheet("test", allData)
+
+    for node in aGraph.get_all_nodes():
+        node.set_data(30)
+    print(aGraph, "\n")
+    dictA = {"A": 120, "B": 120, "E": 120}
+    dictB = {"B": 120}
+    dictC = {"B": 120}
+    dictD = {"B": 120}
+    dictE = {"B": 120}
+    edict = {0: dictA, 1: dictB, 2: dictC, 3: dictD, 4: dictE}
+    moreData = exonode_delta_application(aGraph, 4, edict)
+    print(aGraph)
+    for subList in moreData:
+        print(subList)
+
 
 
 if __name__ == '__main__':
