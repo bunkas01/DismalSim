@@ -1,6 +1,17 @@
 __author__ = "Linnea"
 
-"""Placeholder Docstring."""
+"""Assorted transformative functions for TransformEdges to call.
+
+All of these functions are genericized transform functions for the
+economic simulation.
+
+Functions:
+    - proportional_transform
+    - linear_transform
+    - polynomial_transform
+    - exponential_transform
+    - foil
+"""
 
 
 def proportional_transform(delta, parameters):
@@ -35,7 +46,10 @@ def exponential_transform(delta, parameters):
 
 
 def foil(x, polynomialOne, polynomialTwo):
-    """Attempts to FOIL things"""
+    """Multiplies two polynomials together according to the FOIL
+    method.
+    """
+
     subTotal = 0
     total = 0
     while len(polynomialOne) != 0:

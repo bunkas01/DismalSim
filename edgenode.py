@@ -1,5 +1,6 @@
 import sys
 
+import timetransforms
 import transformfunctions
 
 __author__ = "Ashleigh"
@@ -20,16 +21,16 @@ class Node:
 
     The instance variables for the Node class are as follows:
         - name, the Node's name.
-        - data, the data contained within the node.
-        - edges, a list of edges that have the node as a parent.
-        - colour, the colour of the node, to be used by traversal
+        - data, the data contained within the Node.
+        - edges, a list of edges that have the Node as a parent.
+        - colour, the colour of the Node, to be used by traversal
           algorithms.
-        - distance, the distance from a start node, referenced in
+        - distance, the distance from a start Node, referenced in
           some traversals.
-        - searchedEdge, the edge that linked to this node from a
+        - searchedEdge, the edge that linked to this Node from a
           predecessor in a traversal or pathfinding operation.
-        - discoveredTime, used in depth first traversals.
-        - finishedTime, used in depth first traversals.
+        - discoveredTime, used in depth-first traversals.
+        - finishedTime, used in depth-first traversals.
         - deltaPrev, used as part of economic simulations.
         - deltaNew, used as part of economic simulations.
 
@@ -62,7 +63,7 @@ class Node:
     """
 
     def __init__(self, name, data=None):
-        """initializes Node class based on name and optional data."""
+        """Initializes Node class based on name and optional data."""
         self.name = name
         self.data = data
         self.edges = []
@@ -78,12 +79,12 @@ class Node:
         """Returns a formatted string summarizing the Node.
 
         The summary always has the Node's name, the data it contains,
-        its colour, and the names of all of its child nodes. When
+        its colour, and the names of all of its child Nodes. When
         relevant, the string will also contain the name of the parent
-        node that linked to it in a traversal, the distance from a
-        starting node in a traversal, and/or the time counts on which
-        the node was discovered and fully explored as part of a depth
-        first first traversal.
+        Node that linked to it in a traversal, the distance from a
+        starting Node in a traversal, and/or the time counts on which
+        the Node was discovered and fully explored as part of a depth-
+        first traversal.
         """
 
         nodeDetails = ["Node:", self.name, "has value:", str(self.data),
@@ -157,8 +158,8 @@ class Node:
     def get_edge_by_child(self, childNode):
         """Returns a parented TransformEdge based on its child.
 
-        All TransformEdge instances that the Node is a parent of are
-        checked against the childNode passed in. if the TransformEdge
+        All TransformEdge instances of which the Node is a parent are
+        checked against the childNode passed in. If the TransformEdge
         has that Node as a child, it is returned.
         """
 
@@ -274,8 +275,8 @@ class TransformEdge:
     graph's role as a basis for an economic simulation.
 
     The instance variables for the TransformEdge class are as follows:
-        - parentNode, the node that is the source of the directed edge.
-        - childNode, the node that is the target of the directed edge.
+        - parentNode, the Node that is the source of the directed edge.
+        - childNode, the Node that is the target of the directed edge.
         - transformType, a string describing the transformative
           function that the TransformEdge instance helps represent.
         - targNames, the names of the parameters for the
@@ -318,7 +319,7 @@ class TransformEdge:
         The string references the parent and child Nodes of the
         TransformEdge, the type of transformative function associated
         with the TransformEdge, the parameters of the transformative
-        function, and if relevant, whether the function has been
+        function, and, if relevant, whether the function has been
         inverted during a causality reversal operation.
         """
 
@@ -403,11 +404,11 @@ class TransformEdge:
         self.childNode.remove_edge(self)
         self.parentNode.add_existing_edge(self)
 
-    def transform(self):
+    def transform(self, currentCount=None):
         """Selects and applies a transformative function.
 
         The selection of the transformative functions is based on
-        matching the transformType to a set of predefined functions,
+        matching the transformType to a set of predefined functions
         and then passing in the arguments that are part of the
         TransformEdge's class data.
         """
@@ -426,6 +427,11 @@ class TransformEdge:
             prevDelta = self.parentNode.get_delta_prev()
             calcDelta = transformfunctions.polynomial_transform(prevDelta,
                                                                 self.targs)
+            self.childNode.add_to_delta_new(calcDelta)
+        elif self.transformType == "propcount":
+            prevDelta = self.parentNode.get_delta_prev()
+            calcDelta = timetransforms.proportional_count_linear(prevDelta, self.targs,
+                                                                 currentCount)
             self.childNode.add_to_delta_new(calcDelta)
 
     def get_parent_node(self):

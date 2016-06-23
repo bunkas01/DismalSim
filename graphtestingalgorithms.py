@@ -7,11 +7,11 @@ __author__ = "Ashleigh"
 """Assorted algorithms for testing DiGraph Functionality.
 
 Three of the functions in the module are representative of the actual
-testing algorithms, the rest are assorted helper functions. The
+testing algorithms; the rest are assorted helper functions. The
 wyatt_cauasality_reversal function is named in reference to the
 causality reversal procedure used by Geoffrey Wyatt in the text that
-serves as the basis for the economic simulations this project is
-intended to be used for. The other two testing algorithms are just
+serves as the basis for the economic simulations for which this project
+is intended to be used. The other two testing algorithms are just
 basic breadth-first and depth-first traversals.
 
 Functions:
@@ -32,22 +32,22 @@ Functions:
 
 
 def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
-    """Reverses causality between two nodes, modifies graph.
+    """Reverses causality between two Nodes, modifies graph.
 
     The graph is modified in place, with the directionality reversal
     occurring within the function proper, but the adjustment of
     converging edges is done by a helper function. The other helper
     functions are primarily focused on pathfinding. This function
-    mutates the graph in place, and has no return value.
+    mutates the graph in place and has no return value.
 
     The function arguments are as follows:
         - aGraph, the graph for which causality is to be reversed.
-        - startNodeName, the name of one of the Node's which causality
-          is to be reversed between. More specifically, it represents
-          the initial 'source' of the flow of causality
-        - endNodeName, the name of the other Node that causality is to
-          be reversed between. More specifically, it represents the
-          initial 'sink' of the flow of causality.
+        - startNodeName, the name of one of the Nodes between which
+          causality is to be reversed. More specifically, it represents
+          the initial 'source' of the flow of causality.
+        - endNodeName, the name of the other Node between which
+          causality is to be reversed. More specifically, it represents
+          the initial 'sink' of the flow of causality.
         - The function does not support positional or keyword
           arguments.
     """
@@ -66,9 +66,9 @@ def wyatt_causality_reversal(aGraph, startNodeName, endNodeName):
 
 
 def find_node_path(edgePath):
-    """helper function for wyatt_causality_reversal.
+    """Helper function for wyatt_causality_reversal.
 
-    This function takes the list of edges between two Nodes, and
+    This function takes the list of edges between two Nodes and
     generates a list of all Nodes that would be traversed between the
     start and end points. This list is returned.
 
@@ -121,8 +121,8 @@ def brute_find_path(aGraph, startNode, endNode, edgePath):
 
     This function takes a graph, start and end Nodes, and an empty list
     for the path. From here, it uses a modified depth-first search to
-    locate the end position from the start position, and traces the
-    path taken by the branch of the depth-first tree back, adding the
+    locate the end position from the start position and traces back the
+    path taken by the branch of the depth-first tree, adding the
     edges traversed to the edge path, before returning the list of
     edges. Since the algorithm will explore all possible paths if
     necessary, the search is a brute-force one.
@@ -131,7 +131,7 @@ def brute_find_path(aGraph, startNode, endNode, edgePath):
         - aGraph, the graph to be brute-force searched.
         - startNode, the Node at which the search will start.
         - endNode, the Node being searched for.
-        - edgePath, the empty list to add edges in the path to.
+        - edgePath, the empty list to which to add edges in the path.
         - the function does not support positional or keyword
           arguments.
     """
@@ -153,15 +153,16 @@ def brute_find_path(aGraph, startNode, endNode, edgePath):
 def basic_breadth_first_traversal(aGraph, startNodeName):
     """A simple breadth-first traversal algorithm for the DiGraph.
 
-    The traversal takes a graph to traverse, and a given start Node. It
+    The traversal takes a graph to traverse and a given start Node. It
     uses the colour of the Nodes to determine whether they are valid
-    targets for exploration, as well as sets the distance from the
-    start Node as it runs. It simply traverses the graph, and does not
-    search or significantly modify it, and has no return value.
+    targets for exploration, as well as setting the distance from the
+    start Node as it runs. It simply traverses the graph and does not
+    search or significantly modify it; it has no return value.
 
     The function arguments are as follows:
         - aGraph, the graph to be traversed.
-        - startNodeName, the name of the Node to begin traversing from.
+        - startNodeName, the name of the Node from which to begin
+          traversing.
         - the function does not support positional or keyword
           arguments.
     """
@@ -185,9 +186,9 @@ def basic_breadth_first_traversal(aGraph, startNodeName):
 
 
 def reset_nodes(aGraph):
-    """Resets traversal related data for all Nodes in a graph.
+    """Resets traversal-related data for all Nodes in a graph.
 
-    The function takes a graph, and modifies it in place by calling the
+    The function takes a graph and modifies it in place by calling the
     reset_traversal_data method for Nodes within the graph. After this,
     it resets the graph's maximum distance to the default value of the
     system's maximum integer. Since it modifies the graph in place, the
@@ -216,8 +217,8 @@ def basic_depth_first_traversal(aGraph, startNodeName):
 
     The function arguments are as follows:
         - aGraph, the graph to be traversed.
-        - startNodeName, the name of the Node to begin the traversal
-          from.
+        - startNodeName, the name of the Node from which to begin the
+          traversal.
         - the function does not support positional or keyword
           arguments.
     """
@@ -237,7 +238,7 @@ def depth_first_visit(startNode, timer):
     tree.
 
     The function arguments are as follows:
-        - startNode, the Node to search for adjacent Nodes from.
+        - startNode, the Node from which to search for adjacent Nodes.
         - timer, the timer keeping track of discovery and finish times
           across recursive calls of the function.
         - the function does not support positional or keyword
@@ -259,11 +260,11 @@ def main():
     """Test script for the assorted graph testing functions.
 
     A graph is instantiated, and five Nodes (A, B, C, D, E) are added
-    to it. Four edges are added, and then the graph, and all edges
-    contained within the graph, are printed to the screen. Next, the
-    wyatt_causality_reversal function is called, modifying the graph.
-    The modified graph is printed to the screen, and then yet another
-    edge is added, to make all nodes discoverable from E in the
+    to it. Four edges are added, and then the graph, as well as all
+    edges contained within the graph, are printed to the screen. Next,
+    the wyatt_causality_reversal function is called, modifying the
+    graph. The modified graph is printed to the screen, and then yet
+    another edge is added, to make all Nodes discoverable from E in the
     traversals. Finally, both breadth-first and depth-first traversals
     of the graph are completed, with the graph printed after each one
     to demonstrate their effects.
