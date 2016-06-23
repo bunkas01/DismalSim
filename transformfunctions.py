@@ -2,6 +2,9 @@ __author__ = "Linnea"
 
 """Assorted transformative functions for TransformEdges to call.
 
+All of these functions are genericized transform functions for the
+economic simulation.
+
 Functions:
     - proportional_transform
     - linear_transform

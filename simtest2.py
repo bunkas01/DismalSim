@@ -4,7 +4,17 @@ from deltafunctions import write_output_to_spreadsheet
 
 __author__ = "Ashleigh"
 
-"""Testing script for an improved version of the model."""
+"""Testing script for an improved version of the model.
+
+The script generates a graph with all Nodes of the current model,
+though some of the edges have yet to be added. Aside from the
+introduction of further Nodes to the graph, other improvements
+include the addition of count-based transform functions for some Nodes,
+as well as general refinements to the transforms. The model covers the
+90's specifically, and the initial changes provided for the delta
+application algorithm are the changes in Node value between 1990 and
+1991.
+"""
 
 mostlyMacro = digraph.DiGraph()
 mostlyMacro.add_node("G", 1920.2)

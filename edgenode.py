@@ -430,8 +430,8 @@ class TransformEdge:
             self.childNode.add_to_delta_new(calcDelta)
         elif self.transformType == "propcount":
             prevDelta = self.parentNode.get_delta_prev()
-            calcDelta = timetransforms.proportional_count(prevDelta, self.targs,
-                                                          currentCount)
+            calcDelta = timetransforms.proportional_count_linear(prevDelta, self.targs,
+                                                                 currentCount)
             self.childNode.add_to_delta_new(calcDelta)
 
     def get_parent_node(self):
