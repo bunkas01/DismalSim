@@ -11,20 +11,39 @@ Exceptions:
     - InitError
     - EdgeError
     - DataError
+    - RetrievalError
 """
 
 
 class Vertex:
-    """The Vertex class, intended for use in a graph.
+    """The Vertex class, intended for use in a Graph.
 
-    The Vertex class can be used in directed or undirected graphs, and
-    is designed with linked system modelling in mind. Vertices keeps
-    track of their parent and child vertices in separate dictionaries;
-    this enables the graph to be either directed or undirected, as well
-    as enable the usage of Generous-Parent or Greedy-Child transform
-    paradigms.
+    The Vertex class is designed for usage in directed graphs, and
+    maintains a system of dual references to the directed edges between
+    vertices. This is done through the usage of separate <parents> and
+    <children> dictionaries of edges. When an edge is created between
+    two vertices, the 'parent' Vertex uses the 'child' Vertex as the
+    key for an entry in its <children> dictionary, and the 'child'
+    Vertex uses the 'parent' Vertex as an entry in its <parents>
+    dictionary. A Tuple containing information about the relationship
+    represented by the edge is shared by the dictionaries. This system
+    of dual references, while technically unnecessary enables the Graph
+    to be used with either Generous-Parent or Greedy-Child Transform
+    paradigms. This reference redundancy can also to some extent,
+    enable the Graph to be considered both directed and undirected.
+
+    Supported Transform Types:
+        - Proportional
+        - Linear
+        - Exponential
+        - Polynomial
 
     Class Data:
+        - self.transformKeyMap, a dictionary of integer values, indexed
+          by strings corresponding to different types of predefined
+          transforms. This is used when generating the relationship-
+          tuple for an edge. This dictionary is shared across all
+          instances of the Vertex class.
         - self.name, the name of the Vertex. It takes its value from
           the <name> argument of the __init__ method, and must be a
           string.
@@ -75,11 +94,14 @@ class Vertex:
         - remove_edge
     """
 
+    transformKeyMap = {"proportional": 0, "linear": 1, "exponential": 2,
+                       "polynomial": 3}
+
     def __init__(self, name, data=None):
         """Initializes class data for a Vertex.
 
         The method initializes the Vertex to a default state; Only the
-        name parameter is required, though the data can also be set
+        <name> parameter is required, though the <data> can also be set
         during instantiation. All other class data is set to default
         values, independent of method arguments. Additionally,
         the method raises an InitError if any of the passed arguments
@@ -92,12 +114,8 @@ class Vertex:
             with; it defaults to None.
         """
 
-        if data is not None:
-            try:
-                data = float(data)
-            except ValueError:
-                del self
-                raise InitError(0)
+        if data is not None and not isinstance(data, (int, float)):
+            raise InitError(0)
 
         self.name = str(name)
         self.data = data
@@ -108,7 +126,16 @@ class Vertex:
 
     def __str__(self):
         """Returns a string describing the Vertex."""
-        pass
+        pList = []
+        cList = []
+        for vertex in self.children:
+            cList.append(vertex.get_name())
+        for vertex in self.parents:
+            pList.append(vertex.get_name())
+        vStr = ("Vertex {0} has value: {1}, is a parent of vertices: {2}, and a"
+                " child of vertices: {3}".format(self.name, str(self.data),
+                " ".join(cList), " ".join(pList)))
+        return vStr
 
     def __contains__(self, item):
         """Checks if the Vertex is linked by any edge to <item>."""
@@ -123,10 +150,12 @@ class Vertex:
 
     def set_name(self, newName):
         """Sets the Vertex's name to <newName>."""
-        self.name = newName
+        self.name = str(newName)
 
     def get_data(self):
         """Returns the Vertex's data."""
+        if self.data is None:
+            raise RetrievalError(0)
         return self.data
 
     def set_data(self, newData):
@@ -169,11 +198,16 @@ class Vertex:
         else:
             return False
 
-    def add_parent(self):
-        pass
+    def add_parent(self, pVertex, tData):
+        """Adds an edge reference with <pVertex> as the 'parent'."""
+        self.parents[pVertex] = tData
 
-    def remove_parent(self):
-        pass
+    def remove_parent(self, pVertex):
+        """Removes edge reference where <pVertex> is the 'parent'."""
+        try:
+            del self.parents[pVertex]
+        except KeyError:
+            raise EdgeError(2)
 
     def get_child_vertices(self):
         """Returns a list of the Vertex's child vertices."""
@@ -186,30 +220,74 @@ class Vertex:
         else:
             return False
 
-    def add_child(self):
-        pass
+    def add_child(self, cVertex, tData):
+        """Adds an edge reference with <cVertex> as the 'child'."""
+        self.children[cVertex] = tData
 
-    def remove_child(self):
-        pass
+    def remove_child(self, cVertex):
+        """Removes edge reference where <cVertex> is the 'child'."""
+        try:
+            del self.children[cVertex]
+        except KeyError:
+            raise EdgeError(3)
 
-    def add_edge(self):
-        pass
+    def add_edge(self, cVertex, tName, tParameters):
+        """Adds a directed edge between the Vertex and <cVertex>.
 
-    def remove_edge(self):
-        pass
+        The method serves primarily as a wrapper for the add_parent and
+        add_child methods of the Vertex class, using them for the
+        actual creation of the edge. It does however, perform the
+        transform lookup, pulling the integer transform key, used for
+        cleaner transform selection statements, from the
+        TransformKeyMap dictionary.
+
+        Method Parameters:
+            - cVertex, the 'child' vertex of the edge.
+            - tName, the name of the transform that the edge
+              represents.
+            - tParameters, the list of parameters for the transform
+              function.
+        """
+
+        try:
+            tKey = self.transformKeyMap[str(tName.lower())]
+        except KeyError:
+            raise EdgeError(0)
+        tData = [tKey]
+        tData.extend(tParameters)
+        tDataTuple = tuple(tData)
+        try:
+            self.add_child(cVertex, tDataTuple)
+            cVertex.add_parent(self, tDataTuple)
+        except AttributeError:
+            raise EdgeError(1)
+
+    def remove_edge(self, cVertex):
+        """Removes a directed edge between the Vertex and <cVertex>.
+
+        The method function as a wrapper function for the remove_child
+        and remove_parent methods of the Vertex.
+
+        Method Parameters:
+            - cVertex, the 'child' vertex of the edge to be removed.
+        """
+
+        try:
+            cVertex.remove_parent(self)
+            self.remove_child(cVertex)
+        except AttributeError:
+            raise EdgeError(3)
 
 
 class Graph:
     """The Graph class, intended to model linked systems.
 
-    This Graph is functionally a directed one, however when an edge is
-    added to the Graph, two are actually created, one in each direction
-    between the two vertices. This allows the Graph to function as if
-    it is undirected when that would prove beneficial, while still
-    allowing for operations that assume directionality of edges. The
-    Graph is primarily implemented as a container for its vertices, and
-    many, but not all of the Graph's methods are just wrappers for the
-    equivalent Vertex methods.
+    This Graph is a directed one, though the dual edge references
+    maintained by the Graph's vertices enable it be used in a fashion
+    similar to an undirected one, if needed. The Graph is primarily
+    implemented as a container for its vertices, and many, but not all
+    of the Graph's methods are just wrappers for the equivalent Vertex
+    methods.
 
     Class Data:
         - self.vertices, a dictionary of the vertices contained in the
@@ -253,10 +331,31 @@ class Graph:
 
     def __str__(self):
         """Returns a string describing the Graph."""
-        pass
+        vList = []
+        for vertex in self:
+            vList.append(vertex.get_name())
+        gStr = "The Graph contains vertices: {0}".format(" ".join(vList))
+        return gStr
 
-    def __contains__(self, item):
-        pass
+    def __contains__(self, aVertex):
+        """Checks if <aVertex> is present in the Graph.
+
+        <aVertex> may be either a reference to the Vertex itself, or a
+        string. If it is a string, the string is treated as the
+        Vertex's name, and the method checks if the name is present in
+        the keys of the 'vertices' dictionary.
+
+        Method Parameters:
+            - aVertex, a reference to an instance of the Vertex, or a
+              string, corresponding to a Vertex's name.
+        """
+
+        if isinstance(aVertex, str) and aVertex in self.vertices.keys():
+            return True
+        elif aVertex in self.vertices.values():
+            return True
+        else:
+            return False
 
     def __len__(self):
         """Returns the number of Vertices in the Graph."""
@@ -270,17 +369,63 @@ class Graph:
         """Returns a list of all vertices in the Graph."""
         return list(self.vertices.values())
 
-    def get_vertex(self):
-        pass
+    def get_vertex(self, vName):
+        """Retrieves a vertex from the graph based on it's name."""
+        try:
+            aVertex = self.vertices[vName]
+        except KeyError:
+            raise RetrievalError(1)
+        return aVertex
 
     def add_vertex(self, name, data=None):
-        """Instantiates and adds a new Vertex to the Graph."""
+        """Instantiates and adds a new vertex to the Graph.
+
+        Method Parameters:
+            - name, the name of the vertex to be instantiated and added
+              to the Graph. This parameter is required.
+            - data, the data for the new Vertex to contain. It is an
+              optional parameter, and defaults to None.
+        """
         newVertex = Vertex(name, data)
         self.vertices[name] = newVertex
 
     def add_existing_vertex(self, aVertex):
         """Adds an already instantiated Vertex to the Graph."""
         self.vertices[aVertex.get_name()] = aVertex
+
+    def add_edge(self, pVertex, cVertex, tName, tParameters):
+        """Adds a directed edge to the Graph.
+
+        The function is primarily a wrapper for the Vertex add_edge
+        method, and creates a directed edge between <pVertex> and
+        <cVertex>.
+
+        Method Parameters:
+            - pVertex, the 'parent' Vertex of the edge to be created.
+            - cVertex, the 'child' Vertex of the edge to be created.
+            - tName, the name of the transform function to be
+              associated with the new edge.
+            - tParameters, the parameters for the transform function
+              associated with the edge.
+        """
+
+        pVertex.add_edge(cVertex, tName, tParameters)
+
+    def remove_edge(self, pVertex, cVertex):
+        """Removes a directed edge between <pVertex> and <cVertex>.
+
+        This method is a wrapper function for the Vertex remove_edge
+        class method.
+
+        Method Parameters:
+            - pVertex, the 'parent' Vertex of the edge to be removed.
+            - cVertex, the 'child' Vertex of the edge to be removed.
+        """
+
+        try:
+            pVertex.remove_edge(cVertex)
+        except AttributeError:
+            raise EdgeError(4)
 
     def apply_floating_deltas(self):
         pass
@@ -294,10 +439,16 @@ class GraphError(Exception):
     methods are shared between exception classes in this module, the
     'messages' class data is unique to each exception class, and
     dictates the messages displayed by the exception.
+
+    Class Data:
+        - self.messages, the dictionary of predefined messages for the
+          exception to use.
+        - self.msg, the specific message contained within a given
+          instance of the exception.
     """
 
     messages = {0: "GraphError is intended only to be subclassed, and should"
-                   " never be raised directly."}
+                " never be raised directly."}
 
     def __init__(self, msgKey):
         self.msg = self.messages[msgKey]
@@ -312,28 +463,76 @@ class InitError(GraphError):
     The __init__ methods of other classes will raise this exception in
     the event of an issue with initialization--usually when the
     __init__ method receives an argument of an invalid type.
+
+    Superclass Differences:
+        -self.messages, the contents of the dictionary are different.
     """
 
-    messages = {0: "Invalid value for Vertex 'data' attribute. Unable to"
-                " initialize Vertex.", 1: "invalid argument for Graph __init__"
-                " method; arguments must be instances of the Vertex class."
-                " Unable to initialize Graph."}
+    messages = {0: "Invalid value for Vertex Constructor <data> parameter."
+                " Parameter must be either omitted, an integer, or a float."
+                " Unable to initialize Vertex.",
+                1: "Invalid argument for Graph constructor arguments. All"
+                   " arguments must be instances of the Vertex class. Unable to"
+                   " initialize Graph."}
 
 
 class EdgeError(GraphError):
-    """Exception for issues with Vertex edges."""
+    """Exception for issues with Vertex edges.
 
-    messages = {}
+    This exception will generally be raised when passing invalid
+    vertices to a Vertex's add_edge and remove_edge methods, as well as
+    if an invalid transform name is passed to the add_edge method.
+
+    Superclass Differences:
+        -self.messages, the contents of the dictionary are different.
+    """
+
+    messages = {0: "Transform function name not in dictionary, unable to map"
+                   " transform to transform key. The edge cannot be created.",
+                1: "Object passed in as <cVertex> argument invalid. Object must"
+                   " be an instance of Vertex class. Unable to create edge.",
+                2: "Object passed in as <pVertex> argument not in Vertex's"
+                   " 'parents' dictionary. Cannot remove non-existent 'parent'",
+                3: "Object passed in as <cVertex> argument not in Vertex's"
+                   " 'children' dictionary. Cannot remove non-existent 'child'",
+                4: "object passed in as <pVertex> argument is not an instance"
+                   " of the Vertex class. Unable to remove edges from fake"
+                   " vertices."}
 
 
 class DataError(GraphError):
-    """Exception for issues with Vertex data or delta values."""
+    """Exception for issues with Vertex data or delta values.
+
+    This exception will generally be raised when an invalid value is
+    passed to a Vertex set method.
+
+    Superclass Differences:
+        -self.messages, the contents of the dictionary are different.
+    """
 
     messages = {0: "Invalid value for Vertex 'data' attribute, unable to set"
-                " 'data' to <newData>", 1: "Invalid value for Vertex"
-                " 'deltaPrev' attribute, unable to set 'deltaPrev' to"
-                " <newDelta>", 2: "Invalid value for Vertex 'deltaFloat'"
-                " attribute, unable to set 'deltaFloat' to <newDelta>"}
+                   " 'data' to <newData>",
+                1: "Invalid value for Vertex 'deltaPrev' attribute, unable to"
+                   " set 'deltaPrev' to <newDelta>",
+                2: "Invalid value for Vertex 'deltaFloat' attribute, unable to"
+                   " set 'deltaFloat' to <newDelta>"}
+
+
+class RetrievalError(GraphError):
+    """Exception for attempting to retrieve non-existent data.
+
+    This exception is raised when either a Vertex's 'data' attribute is
+    None, or when attempting to retrieve a Vertex by name from a Graph,
+    and the Vertex isn't present.
+
+    Superclass Differences:
+        -self.messages, the contents of the dictionary are different.
+    """
+
+    messages = {0: "Vertex data is None. Conventional operations on this data"
+                   " are not recommended.",
+                1: "Vertex name not present in Graph 'vertices' dictionary."
+                   " Unable to retrieve vertex."}
 
 
 def main():
@@ -348,9 +547,14 @@ def main():
           demonstrate the Graph's instantiation and mutation.
         - for loops iterating over the vertices of the Graph, to test
           and demonstrate its __iter__ method.
+        - Creation and deletion of edges within a graph, to test and
+          demonstrate relevant methods.
+        - Print the Graph, to test both Graph and Vertex __str__
+          methods.
 
     """
 
+    # Begin error demonstration
     try:
         Vertex("A", "lies")
     except InitError as error:
@@ -359,7 +563,49 @@ def main():
         Graph(Vertex("A"), 5)
     except InitError as error:
         print(error)
+    aVertex = Vertex("A", 2)
+    bVertex = Vertex("B")
+    try:
+        aVertex.add_edge(bVertex, "math", [42])
+    except EdgeError as error:
+        print(error)
+    try:
+        aVertex.add_edge(5, "proportional", [1])
+    except EdgeError as error:
+        print(error)
+    try:
+        aVertex.remove_edge(5)
+    except EdgeError as error:
+        print(error)
+    try:
+        bVertex.remove_parent(4)
+    except EdgeError as error:
+        print(error)
+    try:
+        aVertex.set_data("A")
+    except DataError as error:
+        print(error)
+    try:
+        aVertex.set_delta_prev("A")
+    except DataError as error:
+        print(error)
+    try:
+        aVertex.set_delta_float("A")
+    except DataError as error:
+        print(error)
+    try:
+        bVertex.get_data()
+    except RetrievalError as error:
+        print(error)
+    aGraph = Graph()
+    try:
+        aGraph.get_vertex("C")
+    except RetrievalError as error:
+        print(error)
+    del aVertex, bVertex, aGraph
+    # End error demonstration
 
+    # Begin Graph instantiation and iteration
     vertex1 = Vertex("A", 5)
     vertex2 = Vertex("B", 10)
     vertex3 = Vertex("C", 3)
@@ -369,6 +615,31 @@ def main():
     for vertex in aGraph:
         aSum += vertex.get_data()
     print(aSum)
+    # End Graph instantiation and iteration.
+
+    # Begin edge testing
+    # Create edges, through Graph and Vertex methods
+    vertex5 = Vertex("E", 5)
+    aGraph.add_existing_vertex(vertex5)
+    vertex1.add_edge(vertex2, "proportional", [1])
+    aGraph.add_edge(vertex1, vertex3, "linear", [3, 3])
+    aGraph.add_edge(vertex2, aGraph.get_vertex("D"), "linear", [2, 1])
+    aGraph.add_edge(vertex2, vertex5, "exponential", [2, 3])
+    aGraph.add_edge(vertex3, vertex1, "polynomial", [2, 1])
+    vertex3.add_edge(aGraph.get_vertex("D"), "proportional", [2])
+    aGraph.get_vertex("D").add_edge(vertex3, "linear", [1, 1])
+    vertex5.add_edge(aGraph.get_vertex("D"), "exponential", [3])
+
+    # Remove edges, through Graph and Vertex methods
+    vertex1.remove_edge(vertex3)
+    aGraph.remove_edge(vertex3, aGraph.get_vertex("D"))
+    # End edge testing
+
+    # Begin print test
+    print(aGraph)
+    for vert in aGraph:
+        print(vert)
+    # End print test
 
 
 if __name__ == '__main__':
