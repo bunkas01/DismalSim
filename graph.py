@@ -1,6 +1,10 @@
-__author__ = "Ashleigh Bunkofske"
+import transforms
 
-"""Non-standard graph implementation, intended for use in simulations.
+"""Non-standard graph implementation, intended for use in modelling.
+
+While initially developed with macroeconomic modelling in mind, the
+graph implementation of the DismalSim package is designed to also be
+useful for modelling other linked dynamic systems.
 
 Classes:
     - Vertex
@@ -33,10 +37,10 @@ class Vertex:
     enable the Graph to be considered both directed and undirected.
 
     Supported Transform Types:
-        - Proportional
-        - Linear
-        - Exponential
-        - Polynomial
+        - Proportional (Absolute-Edge)
+        - Linear (Absolute Edge)
+        - Exponential (Absolute Edge)
+        - Polynomial (Absolute Edge)
 
     Class Data:
         - self.transformKeyMap, a dictionary of integer values, indexed
@@ -55,31 +59,37 @@ class Vertex:
           When edges are added to the Vertex, the parent Vertex is used
           as the key for the dictionary; the value in the key-value
           pair is a Tuple containing a value that corresponds to a
-          specific transform function, and the parameters for that
-          transform function.
+          specific gc_transform function, and the parameters for that
+          gc_transform function.
         - self.children, the dictionary containing the child vertices.
           When the Vertex is instantiated, the dictionary is empty.
           When edges are added to the Vertex, the child Vertex is used
           as the key for the dictionary; the value in the key-value
           pair is a Tuple containing a value that corresponds to a
-          specific transform function, and the parameters for that
-          transform function.
-        - self.deltaPrev, the previous delta value. This is used for
-          modelling changes to the vertex in a linked system--the
-          previous delta value is used to calculate the floating delta
-          of the Vertex's children.
-        - self.deltaFloat, the floating delta value. This value is what
-          edge transforms modify, and as it does not modify the
-          Vertex's data until explicitly applied, is considered to
-          'float'.
+          specific gc_transform function, and the parameters for that
+          gc_transform function.
+        - self.absDeltaPrev, the list of previous absolute delta
+          values. These are used for modelling changes to the vertex in
+          a linked system--the previous absolute delta values are used
+          to calculate the floating delta of the Vertex's children.
+        - self.perDeltaPrev, the list of previous percent delta values.
+          These are used for modelling changes to the vertex in a
+          linked system--the previous absolute delta values are used to
+          calculate the floating delta of the Vertex's children.
+        - self.deltaFloat, the absolute floating delta value. This
+          value is what edge and self transforms modify, and as it does
+          not modify the Vertex's data until explicitly applied, is
+          considered to 'float'.
 
     Public Methods:
         - get_name
         - set_name
         - get_data
         - set_data
-        - get_delta_prev
-        - set_delta_prev
+        - get_abs_delta_prev
+        - set_abs_delta_prev
+        - get_per_delta_prev
+        - set_per_delta_prev
         - get_delta_float
         - set_delta_float
         - get_parent_vertices
@@ -92,6 +102,8 @@ class Vertex:
         - remove_child
         - add_edge
         - remove_edge
+        - gc_transform
+        - gp_transform
     """
 
     transformKeyMap = {"proportional": 0, "linear": 1, "exponential": 2,
@@ -121,7 +133,8 @@ class Vertex:
         self.data = data
         self.parents = {}
         self.children = {}
-        self.deltaPrev = 0
+        self.absDeltaPrev = [0]
+        self.perDeltaPrev = [0]
         self.deltaFloat = 0
 
     def __str__(self):
@@ -165,14 +178,25 @@ class Vertex:
         except ValueError:
             raise DataError(0)
 
-    def get_delta_prev(self):
-        """Returns the Vertex's previous delta value."""
-        return self.deltaPrev
+    def get_abs_delta_prev(self):
+        """Returns the previous absolute delta value."""
+        return self.absDeltaPrev
 
-    def set_delta_prev(self, newDelta):
-        """Sets the Vertex's previous delta value to <newDelta>."""
+    def set_abs_delta_prev(self, newDelta):
+        """Sets the previous absolute delta value to <newDelta>."""
         try:
-            self.deltaPrev = float(newDelta)
+            self.absDeltaPrev.insert(0, float(newDelta))
+        except ValueError:
+            raise DataError(1)
+
+    def get_per_delta_prev(self):
+        """Returns the previous percent delta value."""
+        return self.perDeltaPrev
+
+    def set_per_delta_prev(self, newDelta):
+        """Sets the previous percent delta value to <newDelta>."""
+        try:
+            self.perDeltaPrev.insert(0, float(newDelta))
         except ValueError:
             raise DataError(1)
 
@@ -186,6 +210,9 @@ class Vertex:
             self.deltaFloat = float(newDelta)
         except ValueError:
             raise DataError(2)
+    def apply_delta_float(self):
+        """Adds the current value of deltaFloat to data."""
+        self.data += self.deltaFloat
 
     def get_parent_vertices(self):
         """Returns a list of the Vertex's parent vertices."""
@@ -237,15 +264,15 @@ class Vertex:
         The method serves primarily as a wrapper for the add_parent and
         add_child methods of the Vertex class, using them for the
         actual creation of the edge. It does however, perform the
-        transform lookup, pulling the integer transform key, used for
-        cleaner transform selection statements, from the
+        gc_transform lookup, pulling the integer gc_transform key, used for
+        cleaner gc_transform selection statements, from the
         TransformKeyMap dictionary.
 
         Method Parameters:
             - cVertex, the 'child' vertex of the edge.
-            - tName, the name of the transform that the edge
+            - tName, the name of the gc_transform that the edge
               represents.
-            - tParameters, the list of parameters for the transform
+            - tParameters, the list of parameters for the gc_transform
               function.
         """
 
@@ -277,6 +304,35 @@ class Vertex:
             self.remove_child(cVertex)
         except AttributeError:
             raise EdgeError(3)
+
+    def gc_transform(self):
+        """Calculates 'deltaFloat' based on a greedy-child paradigm.
+
+        When using the greedy-child transform paradigm, deltaFloat is
+        calculated by pulling relevant data from the parent nodes.
+        """
+
+        for pVertex in self.parents:
+            pDelta = pVertex.get_abs_delta_prev()
+            tData = self.parents[pVertex]
+            tKey = tData[0]
+            tData = tData[1:]
+            if tKey == 0:
+                self.deltaFloat += transforms.AE_proportional(pDelta, tData)
+            elif tKey == 1:
+                self.deltaFloat += transforms.AE_linear(pDelta, tData)
+            elif tKey == 2:
+                self.deltaFloat += transforms.AE_exponential(pDelta, tData)
+            elif tKey == 3:
+                self.deltaFloat += transforms.AE_polynomial(pDelta, tData)
+        newData = self.data + self.deltaFloat
+        self.absDeltaPrev.insert(0, self.deltaFloat)
+        self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
+        self.data += self.deltaFloat
+
+    def gp_transform(self):
+        """Calculates 'deltaFloat' based on a generous-parent paradigm."""
+        pass
 
 
 class Graph:
@@ -403,9 +459,9 @@ class Graph:
         Method Parameters:
             - pVertex, the 'parent' Vertex of the edge to be created.
             - cVertex, the 'child' Vertex of the edge to be created.
-            - tName, the name of the transform function to be
+            - tName, the name of the gc_transform function to be
               associated with the new edge.
-            - tParameters, the parameters for the transform function
+            - tParameters, the parameters for the gc_transform function
               associated with the edge.
         """
 
@@ -481,14 +537,14 @@ class EdgeError(GraphError):
 
     This exception will generally be raised when passing invalid
     vertices to a Vertex's add_edge and remove_edge methods, as well as
-    if an invalid transform name is passed to the add_edge method.
+    if an invalid gc_transform name is passed to the add_edge method.
 
     Superclass Differences:
         -self.messages, the contents of the dictionary are different.
     """
 
     messages = {0: "Transform function name not in dictionary, unable to map"
-                   " transform to transform key. The edge cannot be created.",
+                   " gc_transform to gc_transform key. The edge cannot be created.",
                 1: "Object passed in as <cVertex> argument invalid. Object must"
                    " be an instance of Vertex class. Unable to create edge.",
                 2: "Object passed in as <pVertex> argument not in Vertex's"
@@ -512,8 +568,8 @@ class DataError(GraphError):
 
     messages = {0: "Invalid value for Vertex 'data' attribute, unable to set"
                    " 'data' to <newData>",
-                1: "Invalid value for Vertex 'deltaPrev' attribute, unable to"
-                   " set 'deltaPrev' to <newDelta>",
+                1: "Invalid value for Vertex 'absDeltaPrev' attribute, unable to"
+                   " set 'absDeltaPrev' to <newDelta>",
                 2: "Invalid value for Vertex 'deltaFloat' attribute, unable to"
                    " set 'deltaFloat' to <newDelta>"}
 
@@ -551,6 +607,9 @@ def main():
           demonstrate relevant methods.
         - Print the Graph, to test both Graph and Vertex __str__
           methods.
+        - Forcibly set the absDeltaPrev attribute of all vertices in
+          the test graph, and call the gc_transform method of those
+          vertices.
 
     """
 
@@ -586,7 +645,7 @@ def main():
     except DataError as error:
         print(error)
     try:
-        aVertex.set_delta_prev("A")
+        aVertex.set_abs_delta_prev("A")
     except DataError as error:
         print(error)
     try:
@@ -640,6 +699,15 @@ def main():
     for vert in aGraph:
         print(vert)
     # End print test
+
+    # Begin gc_transform method test
+    for vert in aGraph:
+        vert.set_abs_delta_prev(10)
+    for vert in aGraph:
+        vert.gc_transform()
+    for vert in aGraph:
+        print(vert)
+    # End gc_transform method test
 
 
 if __name__ == '__main__':

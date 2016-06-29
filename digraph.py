@@ -2,8 +2,6 @@ import sys
 
 import edgenode
 
-__author__ = "Ashleigh"
-
 """Contains the implementation of a directed graph.
 
 This DiGraph uses custom Node classes for its vertices, and these Nodes

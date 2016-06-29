@@ -2,8 +2,6 @@ import sys
 
 import digraph
 
-__author__ = "Ashleigh"
-
 """Assorted algorithms for testing DiGraph Functionality.
 
 Three of the functions in the module are representative of the actual

@@ -2,8 +2,6 @@ import digraph
 from deltafunctions import multicount_delta_application
 from deltafunctions import write_output_to_spreadsheet
 
-__author__ = "Ashleigh"
-
 """Early testing script making use of delta application functions.
 
 The script generates a simplified version of the macroeconomic DiGraph

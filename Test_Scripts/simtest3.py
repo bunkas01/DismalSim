@@ -2,8 +2,6 @@ import digraph
 from deltafunctions import exonode_delta_application
 from deltafunctions import write_output_to_spreadsheet
 
-__author__ = "Ashleigh"
-
 """Testing script for another improved version of the model.
 
 The script generates a graph with all Nodes of the current model,

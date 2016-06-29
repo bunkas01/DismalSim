@@ -1,9 +1,7 @@
 import sys
 
 import timetransforms
-import transformfunctions
-
-__author__ = "Ashleigh"
+import transforms
 
 """Contains the Node and TransformEdge classes for a graph.
 
@@ -31,7 +29,7 @@ class Node:
           predecessor in a traversal or pathfinding operation.
         - discoveredTime, used in depth-first traversals.
         - finishedTime, used in depth-first traversals.
-        - deltaPrev, used as part of economic simulations.
+        - absDeltaPrev, used as part of economic simulations.
         - deltaNew, used as part of economic simulations.
 
     The public methods for the Node class are as follows:
@@ -56,8 +54,8 @@ class Node:
         - set_discovered_time(self, newTime)
         - get_finished_time(self)
         - set_finished_time(self, newTime)
-        - get_delta_prev(self)
-        - set_delta_prev(self, newDelta)
+        - get_abs_delta_prev(self)
+        - set_abs_delta_prev(self, newDelta)
         - get_delta_new(self)
         - set_delta_new(self, newDelta)
     """
@@ -246,11 +244,11 @@ class Node:
         self.finishedTime = newTime
 
     def get_delta_prev(self):
-        """Returns the value of deltaPrev."""
+        """Returns the value of absDeltaPrev."""
         return self.deltaPrev
 
     def set_delta_prev(self, newDelta):
-        """Sets the value of deltaPrev to newDelta."""
+        """Sets the value of absDeltaPrev to newDelta."""
         self.deltaPrev = newDelta
 
     def get_delta_new(self):
@@ -290,7 +288,7 @@ class TransformEdge:
 
     The public methods for the TransformEdge class are as follows:
         - reverse(self)
-        - transform(self)
+        - gc_transform(self)
         - get_parent_node(self)
         - set_parent_node(self, newParentNode)
         - get_child_node(self)
@@ -325,14 +323,14 @@ class TransformEdge:
 
         edgeDetails = ["This is a directed edge between",
                        self.parentNode.get_name(), "and",
-                       self.childNode.get_name(), "with transform type:",
+                       self.childNode.get_name(), "with gc_transform type:",
                        self.transformType, "\n",
                        "and the following parameters:"]
         for index in range(0, len(self.targNames)):
             edgeDetails.append(str(self.targNames[index]))
             edgeDetails.append(str(self.targs[index]))
         if self.invertedFlag:
-            edgeDetails.extend(["\n", "The edge transform function has been "
+            edgeDetails.extend(["\n", "The edge gc_transform function has been "
                                       "inverted as part of causality reversal"])
         return " ".join(edgeDetails)
 
@@ -414,22 +412,22 @@ class TransformEdge:
         """
 
         if self.transformType == "proportional":
-            prevDelta = self.parentNode.get_delta_prev()
-            calcDelta = transformfunctions.proportional_transform(prevDelta,
-                                                                  self.targs)
+            prevDelta = self.parentNode.get_abs_delta_prev()
+            calcDelta = transforms.AE_proportional(prevDelta,
+                                                   self.targs)
             self.childNode.add_to_delta_new(calcDelta)
         elif self.transformType == "linear":
-            prevDelta = self.parentNode.get_delta_prev()
-            calcDelta = transformfunctions.linear_transform(prevDelta,
-                                                            self.targs)
+            prevDelta = self.parentNode.get_abs_delta_prev()
+            calcDelta = transforms.AE_linear(prevDelta,
+                                             self.targs)
             self.childNode.add_to_delta_new(calcDelta)
         elif self.transformType == "polynomial":
-            prevDelta = self.parentNode.get_delta_prev()
-            calcDelta = transformfunctions.polynomial_transform(prevDelta,
-                                                                self.targs)
+            prevDelta = self.parentNode.get_abs_delta_prev()
+            calcDelta = transforms.AE_polynomial(prevDelta,
+                                                 self.targs)
             self.childNode.add_to_delta_new(calcDelta)
         elif self.transformType == "propcount":
-            prevDelta = self.parentNode.get_delta_prev()
+            prevDelta = self.parentNode.get_abs_delta_prev()
             calcDelta = timetransforms.proportional_count_linear(prevDelta,
                                                                  self.targs,
                                                                  currentCount)
@@ -452,7 +450,7 @@ class TransformEdge:
         self.childNode = newChildNode
 
     def get_transform_type(self):
-        """Returns a reference to the name of the transform type."""
+        """Returns a reference to the name of the gc_transform type."""
         return self.transformType
 
     def check_invert(self):
