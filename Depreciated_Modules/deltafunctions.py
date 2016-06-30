@@ -1,6 +1,6 @@
 from openpyxl import Workbook
 
-import digraph
+from Depreciated_Modules import digraph
 
 """Assorted algorithms for calculating and applying changes to graphs.
 

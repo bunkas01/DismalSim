@@ -62,7 +62,7 @@ class ParameterError(TransformError):
                    " present in supplied sequence. Unable to extract all"
                    " necessary gc_transform parameters.",
                 2: "A value in the sequence <parameters> is not an integer or a"
-                   " float. Unable to use value for gc_transform."}
+                   " float. Unable to use value for computation."}
 
 
 def AE_proportional(oDelta, parameters):
@@ -109,7 +109,7 @@ def AE_linear(oDelta, parameters):
         try:
             gradient = parameters[0]
             intercept = parameters[1]
-            nDelta = (oDelta * gradient) + intercept
+            nDelta = oDelta * gradient + intercept
             return float(nDelta)
         except IndexError:
             raise ParameterError(1)
@@ -119,8 +119,15 @@ def AE_linear(oDelta, parameters):
         raise ParameterError(0)
 
 
-def AE_polynomial(delta, parameters):
+def AE_polynomial(oDelta, parameters):
     """Calculates a new delta based on supplied arguments.
+
+    The function supports a polynomial of arbitrary length, and if the
+    polynomial includes a constant, does not require an exponent of
+    zero in the sequence for that term of the expression. The exponent
+    and coefficient of each term are extracted in turn from the
+    sequence <parameters>. The defined order of the sequence is
+    [coefficient_1, exponent_1, ... , coefficient_n, exponent_n].
 
     Function Arguments:
         - oDelta, the old absolute delta value.
@@ -128,16 +135,32 @@ def AE_polynomial(delta, parameters):
           calculating the new delta value.
     """
 
-    newDelta = 0
-    while len(parameters) != 0:
-        coefficient = parameters.pop(0)
-        power = parameters.pop(0)
-        newDelta += coefficient * delta ** power
-    return newDelta
+    if isinstance(parameters, (tuple, list)):
+        try:
+            nDelta = 0
+            for k in range(len(parameters) // 2):
+                coefficient = parameters[2 * k]
+                exponent = parameters[(2 * k) + 1]
+                nDelta += coefficient * (oDelta ** exponent)
+            if len(parameters) % 2 != 0:
+                nDelta += parameters[len(parameters) - 1]
+            return float(nDelta)
+        except IndexError:
+            raise ParameterError(1)
+        except ValueError:
+            raise ParameterError(2)
+    else:
+        raise ParameterError(0)
 
 
-def AE_exponential(delta, parameters):
+def AE_exponential(oDelta, parameters):
     """Calculates a new delta based on supplied arguments.
+
+    The function extracts the base and constant from the (hopefully)
+    two-item sequence <parameters>, and uses them to calculate a new
+    delta value based on an exponential relationship between the old
+    one and the new. The defined ordering in the sequence is [base,
+    constant].
 
     Function Arguments:
         - oDelta, the old absolute delta value.
@@ -145,37 +168,61 @@ def AE_exponential(delta, parameters):
           calculating the new delta value.
     """
 
-    newDelta = 0
-    base = parameters[0]
-    constant = parameters[1]
-    newDelta = base ** delta + constant
-    return newDelta
-
-
-# def foil(x, polynomialOne, polynomialTwo):
-#     """Multiplies two polynomials together according to the FOIL
-#     method.
-#     """
-#
-#     subTotal = 0
-#     total = 0
-#     while len(polynomialOne) != 0:
-#         coefficientOne = polynomialOne.pop(0)
-#         powerOne = polynomialOne.pop(0)
-#         termOne = coefficientOne * x ** powerOne
-#         for i in range(len(polynomialTwo) // 2):
-#             coefficientTwo = polynomialTwo[(2 * i)]
-#             powerTwo = polynomialTwo[(2 * i + 1)]
-#             termTwo = coefficientTwo * x ** powerTwo
-#             newTerm = termOne * termTwo
-#             subTotal += newTerm
-#         total += subTotal
-#         subTotal = 0
-#     return total
+    if isinstance(parameters, (tuple, list)):
+        try:
+            base = parameters[0]
+            if len(parameters) == 1:
+                constant = 0
+            else:
+                constant = parameters[1]
+            nDelta = (base ** oDelta) + constant
+            return float(nDelta)
+        except IndexError:
+            raise ParameterError(1)
+        except ValueError:
+            raise ParameterError(2)
+    else:
+        raise ParameterError(0)
 
 
 def main():
-    pass
+    """Test script for the functions and exceptions in this module.
+
+    Test Components:
+        - try-except blocks that deliberately result in raising the
+          exceptions defined in this module, following by catching the
+          exceptions to test and demonstrate them.
+        - Performing computations with each transform, to test the
+          accuracy of each functions computations.
+    """
+
+    # Begin Error Test
+    try:
+        AE_proportional(5, "A")
+    except ParameterError as error:
+        print(error)
+    try:
+        AE_linear(5, [5])
+    except ParameterError as error:
+        print(error)
+    try:
+        AE_proportional(5, ("a",))
+    except ParameterError as error:
+        print(error)
+    # End Error Test
+
+    # Begin Computation Test
+    delta = AE_proportional(5, [5])  # Should return 25
+    print(delta)
+    delta = AE_linear(5, [2, 10])  # Should return 20
+    print(delta)
+    delta = AE_polynomial(5, (2, 2, 2, 2))  # Should return 100
+    print(delta)
+    delta = AE_polynomial(5, [2, 2, 10])  # Should return 60
+    print(delta)
+    delta = AE_exponential(5, [2, 32])  # Should return 64
+    print(delta)
+    # End Computation Test
 
 
 if __name__ == '__main__':

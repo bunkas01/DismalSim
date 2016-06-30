@@ -1,6 +1,7 @@
 import digraph
-from deltafunctions import exonode_delta_application
-from deltafunctions import write_output_to_spreadsheet
+
+from Depreciated_Modules.deltafunctions import exonode_delta_application
+from Depreciated_Modules.deltafunctions import write_output_to_spreadsheet
 
 """Testing script for another improved version of the model.
 

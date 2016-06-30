@@ -1,7 +1,7 @@
 import sys
 
-import timetransforms
 import transforms
+from Depreciated_Modules import timetransforms
 
 """Contains the Node and TransformEdge classes for a graph.
 

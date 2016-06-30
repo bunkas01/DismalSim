@@ -1,6 +1,7 @@
 import digraph
-from deltafunctions import multicount_delta_application
-from deltafunctions import write_output_to_spreadsheet
+
+from Depreciated_Modules.deltafunctions import multicount_delta_application
+from Depreciated_Modules.deltafunctions import write_output_to_spreadsheet
 
 """Early testing script making use of delta application functions.
 

@@ -1,6 +1,6 @@
 import sys
 
-import digraph
+from Depreciated_Modules import digraph
 
 """Assorted algorithms for testing DiGraph Functionality.
 

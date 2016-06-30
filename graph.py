@@ -180,7 +180,7 @@ class Vertex:
 
     def get_abs_delta_prev(self):
         """Returns the previous absolute delta value."""
-        return self.absDeltaPrev
+        return self.absDeltaPrev[0]
 
     def set_abs_delta_prev(self, newDelta):
         """Sets the previous absolute delta value to <newDelta>."""
@@ -594,7 +594,7 @@ class RetrievalError(GraphError):
 def main():
     """Test script for the classes and exceptions in this module.
 
-    Test components:
+    Test Components:
         - try-except blocks that deliberately result in raising the
           exceptions included in the module, followed by catching them
           to test and demonstrate the exceptions.

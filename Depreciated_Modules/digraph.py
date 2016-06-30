@@ -1,6 +1,6 @@
 import sys
 
-import edgenode
+from Depreciated_Modules import edgenode
 
 """Contains the implementation of a directed graph.
 
