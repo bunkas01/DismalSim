@@ -110,7 +110,8 @@ class Vertex:
                        "abs_exponential": 2, "abs_polynomial": 3,
                        "per_proportional": 4, "per_linear": 5,
                        "per_exponential": 6, "per_polynomial": 7,
-                       "def_proportional": 8}
+                       "def_proportional": 8, "def_red": 9, "red": 10,
+                       "green": 11}
 
     def __init__(self, name, data=None):
         """Initializes class data for a Vertex.
@@ -194,7 +195,7 @@ class Vertex:
 
     def get_per_delta_prev(self):
         """Returns the previous percent delta value."""
-        return self.perDeltaPrev
+        return self.perDeltaPrev[0]
 
     def set_per_delta_prev(self, newDelta):
         """Sets the previous percent delta value to <newDelta>."""
@@ -319,10 +320,13 @@ class Vertex:
         """
 
         for pVertex in self.parents:
-            pDelta = pVertex.get_abs_delta_prev()
             tData = self.parents[pVertex]
             tKey = tData[0]
             tData = tData[1:]
+            if tKey in (0, 1 ,2 ,3, 11):
+                pDelta = pVertex.get_abs_delta_prev()
+            else:
+                pDelta = pVertex.get_per_delta_prev()
             if tKey == 0:
                 self.deltaFloat += transforms.AE_proportional(pDelta, tData)
             elif tKey == 1:
@@ -343,6 +347,11 @@ class Vertex:
             elif tKey == 7:
                 self.deltaFloat += self.data * transforms.PE_polynomial(pDelta,
                                                                         tData)
+            elif tKey == 10:
+                self.deltaFloat += transforms.red_edge(pDelta, tData)
+            elif tKey == 11:
+                self.deltaFloat += self.data * transforms.green_edge(pDelta,
+                                                                     tData)
         # newData = self.data + self.deltaFloat
         # self.absDeltaPrev.insert(0, self.deltaFloat)
         # self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
@@ -355,12 +364,15 @@ class Vertex:
     def def_transform(self):
         """Calculates a definitional 'deltaFloat'."""
         for pVertex in self.parents:
-            pDelta = pVertex.get_abs_delta_prev()
             tData = self.parents[pVertex]
             tKey = tData[0]
             tData = tData[1:]
             if tKey == 8:
-                self.deltaFloat += transforms.DE_proportional(pDelta, tData)
+                pDelta = pVertex.get_abs_delta_prev()
+                self.deltaFloat += transforms.DAE_proportional(pDelta, tData)
+            elif tKey == 9:
+                pDelta = pVertex.get_per_delta_prev()
+                self.deltaFloat += transforms.def_red(pDelta, tData)
 
 
 class Graph:

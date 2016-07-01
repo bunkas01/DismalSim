@@ -13,7 +13,8 @@ Function Identifiers:
     - PE, Percent Edge
     - AS, Absolute Self
     - PS, Percent Self
-    - DE, Definitional Edge
+    - DAE, Definitional Absolute Edge
+    - DPE, Definitional Percent Edge
 
 Functions:
     - AE_propotional
@@ -203,6 +204,20 @@ def PE_proportional(oDelta, parameters):
     return nDelta
 
 
+def red_edge(delta, parameters):
+    return AE_linear(delta, parameters)
+
+
+def green_edge(delta, parameters):
+    pDelta = AE_linear(delta, parameters)
+    nDelta = (pDelta / 100) +1
+    return nDelta
+
+
+def def_red(delta, parameters):
+    return AE_linear(delta, parameters)
+
+
 def PE_linear(oDelta, parameters):
     """Calculates a new delta based on supplied arguments.
 
@@ -253,7 +268,22 @@ def PE_polynomial(oDelta, parameters):
     nDelta = (pDelta / 100) + 1
     return nDelta
 
-def DE_proportional(delta, parameters):
+
+def DAE_proportional(delta, parameters):
+    """Calculates a new delta based on supplied arguments.
+
+    The returned delta is the absolute definitional change in a vertex.
+
+    Function Arguments:
+        - delta, the absolute definitional delta value.
+        - parameters, the sequence of parameters to be used for
+          calculating the new delta value.
+    """
+
+    return AE_proportional(delta, parameters)
+
+
+def DPE_proportional(delta, parameters):
     """Calculates a new delta based on supplied arguments.
 
     The returned delta is the absolute definitional change in a vertex.
@@ -314,7 +344,7 @@ def main():
     print(delta)
     delta = PE_exponential(2, [2, 4])  # Should return 1.08
     print(delta)
-    delta = DE_proportional(23, [-2])  # Should return -46
+    delta = DAE_proportional(23, [-2])  # Should return -46
     print(delta)
     # End Computation Test
 
