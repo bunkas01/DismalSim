@@ -41,4 +41,4 @@ iDelta = {"G": 114.4, "T": 50.4, "C": 134.6, "YD": 144, "M": -6.2, "Y": 194.4,
 
 output = deltacalc.gc_multicount_delta(aGraph, 10, iDelta)
 
-deltacalc.output_spreadsheet("text_00_data", output)
+deltacalc.output_spreadsheet("test_01_data", output)
