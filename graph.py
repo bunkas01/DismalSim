@@ -37,10 +37,10 @@ class Vertex:
     enable the Graph to be considered both directed and undirected.
 
     Supported Transform Types:
-        - Proportional (Absolute-Edge)
-        - Linear (Absolute Edge)
-        - Exponential (Absolute Edge)
-        - Polynomial (Absolute Edge)
+        - Proportional (Absolute-Edge, Percent-Edge)
+        - Linear (Absolute-Edge, Percent-Edge)
+        - Exponential (Absolute-Edge, Percent-Edge)
+        - Polynomial (Absolute-Edge, Percent-Edge)
 
     Class Data:
         - self.transformKeyMap, a dictionary of integer values, indexed
@@ -106,8 +106,11 @@ class Vertex:
         - gp_transform
     """
 
-    transformKeyMap = {"proportional": 0, "linear": 1, "exponential": 2,
-                       "polynomial": 3}
+    transformKeyMap = {"abs_proportional": 0, "abs_linear": 1,
+                       "abs_exponential": 2, "abs_polynomial": 3,
+                       "per_proportional": 4, "per_linear": 5,
+                       "per_exponential": 6, "per_polynomial": 7,
+                       "def_proportional": 8}
 
     def __init__(self, name, data=None):
         """Initializes class data for a Vertex.
@@ -212,6 +215,9 @@ class Vertex:
             raise DataError(2)
     def apply_delta_float(self):
         """Adds the current value of deltaFloat to data."""
+        newData = self.data + self.deltaFloat
+        self.absDeltaPrev.insert(0, self.deltaFloat)
+        self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
         self.data += self.deltaFloat
 
     def get_parent_vertices(self):
@@ -325,14 +331,36 @@ class Vertex:
                 self.deltaFloat += transforms.AE_exponential(pDelta, tData)
             elif tKey == 3:
                 self.deltaFloat += transforms.AE_polynomial(pDelta, tData)
-        newData = self.data + self.deltaFloat
-        self.absDeltaPrev.insert(0, self.deltaFloat)
-        self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
-        self.data += self.deltaFloat
+            elif tKey == 4:
+                self.deltaFloat += (self.data *
+                                    transforms.PE_proportional(pDelta, tData))
+            elif tKey == 5:
+                self.deltaFloat += self.data * transforms.PE_linear(pDelta,
+                                                                    tData)
+            elif tKey == 6:
+                self.deltaFloat += self.data * transforms.PE_exponential(pDelta,
+                                                                         tData)
+            elif tKey == 7:
+                self.deltaFloat += self.data * transforms.PE_polynomial(pDelta,
+                                                                        tData)
+        # newData = self.data + self.deltaFloat
+        # self.absDeltaPrev.insert(0, self.deltaFloat)
+        # self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
+        # self.data += self.deltaFloat
 
     def gp_transform(self):
         """Calculates 'deltaFloat' based on a generous-parent paradigm."""
         pass
+
+    def def_transform(self):
+        """Calculates a definitional 'deltaFloat'."""
+        for pVertex in self.parents:
+            pDelta = pVertex.get_abs_delta_prev()
+            tData = self.parents[pVertex]
+            tKey = tData[0]
+            tData = tData[1:]
+            if tKey == 8:
+                self.deltaFloat += transforms.DE_proportional(pDelta, tData)
 
 
 class Graph:
@@ -464,8 +492,15 @@ class Graph:
             - tParameters, the parameters for the gc_transform function
               associated with the edge.
         """
-
-        pVertex.add_edge(cVertex, tName, tParameters)
+        if isinstance(pVertex, str):
+            pvertex = self.get_vertex(pVertex)
+        else:
+            pvertex = pVertex
+        if isinstance(cVertex, str):
+            cvertex = self.get_vertex(cVertex)
+        else:
+            cvertex = cVertex
+        pvertex.add_edge(cvertex, tName, tParameters)
 
     def remove_edge(self, pVertex, cVertex):
         """Removes a directed edge between <pVertex> and <cVertex>.
@@ -484,7 +519,8 @@ class Graph:
             raise EdgeError(4)
 
     def apply_floating_deltas(self):
-        pass
+        for vert in self:
+            vert.apply_delta_float()
 
 
 class GraphError(Exception):
@@ -629,7 +665,7 @@ def main():
     except EdgeError as error:
         print(error)
     try:
-        aVertex.add_edge(5, "proportional", [1])
+        aVertex.add_edge(5, "abs_proportional", [1])
     except EdgeError as error:
         print(error)
     try:
@@ -680,14 +716,14 @@ def main():
     # Create edges, through Graph and Vertex methods
     vertex5 = Vertex("E", 5)
     aGraph.add_existing_vertex(vertex5)
-    vertex1.add_edge(vertex2, "proportional", [1])
-    aGraph.add_edge(vertex1, vertex3, "linear", [3, 3])
-    aGraph.add_edge(vertex2, aGraph.get_vertex("D"), "linear", [2, 1])
-    aGraph.add_edge(vertex2, vertex5, "exponential", [2, 3])
-    aGraph.add_edge(vertex3, vertex1, "polynomial", [2, 1])
-    vertex3.add_edge(aGraph.get_vertex("D"), "proportional", [2])
-    aGraph.get_vertex("D").add_edge(vertex3, "linear", [1, 1])
-    vertex5.add_edge(aGraph.get_vertex("D"), "exponential", [3])
+    vertex1.add_edge(vertex2, "abs_proportional", [1])
+    aGraph.add_edge(vertex1, vertex3, "abs_linear", [3, 3])
+    aGraph.add_edge(vertex2, aGraph.get_vertex("D"), "abs_linear", [2, 1])
+    aGraph.add_edge(vertex2, vertex5, "abs_exponential", [2, 3])
+    aGraph.add_edge(vertex3, vertex1, "abs_polynomial", [2, 1])
+    vertex3.add_edge(aGraph.get_vertex("D"), "abs_proportional", [2])
+    aGraph.get_vertex("D").add_edge(vertex3, "abs_linear", [1, 1])
+    vertex5.add_edge(aGraph.get_vertex("D"), "abs_exponential", [3])
 
     # Remove edges, through Graph and Vertex methods
     vertex1.remove_edge(vertex3)
@@ -705,6 +741,7 @@ def main():
         vert.set_abs_delta_prev(10)
     for vert in aGraph:
         vert.gc_transform()
+    aGraph.apply_floating_deltas()
     for vert in aGraph:
         print(vert)
     # End gc_transform method test

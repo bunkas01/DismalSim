@@ -13,6 +13,7 @@ Function Identifiers:
     - PE, Percent Edge
     - AS, Absolute Self
     - PS, Percent Self
+    - DE, Definitional Edge
 
 Functions:
     - AE_propotional
@@ -185,6 +186,87 @@ def AE_exponential(oDelta, parameters):
         raise ParameterError(0)
 
 
+def PE_proportional(oDelta, parameters):
+    """Calculates a new delta based on supplied arguments.
+
+    The returned delta is the value by which the data should be
+    multiplied to produce an X% percent change.
+
+    Function Arguments:
+        - oDelta, the old percent delta value.
+        - parameters, the sequence of parameters to be used for
+          calculating the new delta value.
+    """
+
+    pDelta = AE_proportional(oDelta, parameters)
+    nDelta = (pDelta / 100) + 1
+    return nDelta
+
+
+def PE_linear(oDelta, parameters):
+    """Calculates a new delta based on supplied arguments.
+
+    The returned delta is the value by which the data should be
+    multiplied to produce an X% percent change.
+
+    Function Arguments:
+        - oDelta, the old percent delta value.
+        - parameters, the sequence of parameters to be used for
+          calculating the new delta value.
+    """
+
+    pDelta = AE_linear(oDelta, parameters)
+    nDelta = (pDelta / 100) + 1
+    return nDelta
+
+
+def PE_exponential(oDelta, parameters):
+    """Calculates a new delta based on supplied arguments.
+
+    The returned delta is the value by which the data should be
+    multiplied to produce an X% percent change.
+
+    Function Arguments:
+        - oDelta, the old percent delta value.
+        - parameters, the sequence of parameters to be used for
+          calculating the new delta value.
+    """
+
+    pDelta = AE_exponential(oDelta, parameters)
+    nDelta = (pDelta / 100) + 1
+    return nDelta
+
+
+def PE_polynomial(oDelta, parameters):
+    """Calculates a new delta based on supplied arguments.
+
+    The returned delta is the value by which the data should be
+    multiplied to produce an X% percent change.
+
+    Function Arguments:
+        - oDelta, the old percent delta value.
+        - parameters, the sequence of parameters to be used for
+          calculating the new delta value.
+    """
+
+    pDelta = AE_polynomial(oDelta, parameters)
+    nDelta = (pDelta / 100) + 1
+    return nDelta
+
+def DE_proportional(delta, parameters):
+    """Calculates a new delta based on supplied arguments.
+
+    The returned delta is the absolute definitional change in a vertex.
+
+    Function Arguments:
+        - delta, the absolute definitional delta value.
+        - parameters, the sequence of parameters to be used for
+          calculating the new delta value.
+    """
+
+    return AE_proportional(delta, parameters)
+
+
 def main():
     """Test script for the functions and exceptions in this module.
 
@@ -221,6 +303,18 @@ def main():
     delta = AE_polynomial(5, [2, 2, 10])  # Should return 60
     print(delta)
     delta = AE_exponential(5, [2, 32])  # Should return 64
+    print(delta)
+    delta = PE_proportional(2, [2])  # Should return 1.04
+    print(delta)
+    delta = PE_linear(2, [3, 1])  # Should return 1.07
+    print(delta)
+    delta = PE_polynomial(2, (2, 2, 2, 2))  # Should return 1.16
+    print(delta)
+    delta = PE_polynomial(2, [2, 2, 4])  # Should return 1.12
+    print(delta)
+    delta = PE_exponential(2, [2, 4])  # Should return 1.08
+    print(delta)
+    delta = DE_proportional(23, [-2])  # Should return -46
     print(delta)
     # End Computation Test
 

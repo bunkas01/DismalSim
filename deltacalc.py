@@ -1,4 +1,5 @@
 import graph
+from openpyxl import Workbook
 
 """Algorithms for calculating changes in dynamic graphs.
 
@@ -9,6 +10,8 @@ Functions:
     - gc_calc_delta
     - gp_calc_delta
     - def_calc_delta
+    - multicount_delta
+    - exovert_delta
 """
 
 
@@ -42,7 +45,11 @@ def log_data(aGraph, dataLog):
         - dataLog
     """
 
-    pass
+    for key in dataLog:
+        dataList = dataLog[key]
+        vertex = aGraph.get_vertex(key)
+        vData = vertex.get_data()
+        dataList.append(vData)
 
 
 def manual_delta(aGraph, deltaDict):
@@ -53,40 +60,92 @@ def manual_delta(aGraph, deltaDict):
         - deltaDict
     """
 
-    pass
+    for key in deltaDict:
+        if key in aGraph:
+            vTarget = aGraph.get_vertex(key)
+            delta = deltaDict[key]
+            vTarget.set_delta_float(delta)
 
 def gc_calc_delta(aGraph):
-    """Calculates and applies deltas using a greedy-child paradigm.
+    """Calculates delta values using a greedy-child paradigm.
 
     Function Arguments:
         - aGraph
     """
 
-    pass
+    for vertex in aGraph:
+        vertex.gc_transform()
 
 
 def gp_calc_delta(aGraph):
-    """Calculates and applies deltas using a generous-parent paradigm.
+    """Calculates delta values using a generous-parent paradigm.
 
     Function Arguments:
         -aGraph
     """
 
-    pass
+    return NotImplemented
 
 
 def def_calc_delta(aGraph):
-    """Calculates and applies definitional delta values.
+    """Calculates definitional delta values.
 
     Function Arguments:
         - aGraph
     """
 
-    pass
+    for vertex in aGraph:
+        vertex.def_transform()
+
+
+def gc_multicount_delta(aGraph, maxCount, initDeltaDict):
+    dataLog = gen_data_log(aGraph)
+    for count in range(maxCount + 1):
+        if count == 0:
+            manual_delta(aGraph, initDeltaDict)
+        else:
+            gc_calc_delta(aGraph)
+            aGraph.apply_floating_deltas()
+            def_calc_delta(aGraph)
+            aGraph.apply_floating_deltas()
+        log_data(aGraph, dataLog)
+    return dataLog
+
+
+def gc_exovert_delta(aGraph, maxCount, exoDeltaDict):
+    return NotImplemented
+
+
+def output_spreadsheet(filename, dataDict):
+    filename += ".xlsx"
+    dataBook = Workbook()
+    dataSheet = dataBook.active
+
+    colCount = 1
+    rowCount = 1
+    for sublist in dataDict.values():
+        for item in sublist:
+            cell = dataSheet.cell(column=colCount, row=rowCount)
+            cell.value = item
+            rowCount += 1
+        rowCount = 1
+        colCount += 1
+    dataBook.save(filename)
 
 
 def main():
     aGraph = graph.Graph()
+    aGraph.add_vertex("A", 10)
+    aGraph.add_vertex("B", 10)
+    aGraph.add_vertex("C", 10)
+    aGraph.add_vertex("D", 10)
+    aGraph.add_edge("A", "B", "abs_linear", [2, 2])
+    aGraph.add_edge("A", "C", "per_linear", [10, 15])
+    aGraph.add_edge("B", "D", "def_proportional", [1])
+    aGraph.add_edge("C", "D", "def_proportional", [1])
+    aGraph.add_edge("D", "A", "abs_proportional", [2])
+    iDelta = {"A": 20}
+    print(gc_multicount_delta(aGraph, 5, iDelta))
 
 
 if __name__ == '__main__':
