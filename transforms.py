@@ -215,7 +215,7 @@ def green_edge(delta, parameters):
 
 
 def def_red(delta, parameters):
-    return AE_linear(delta, parameters)
+    return AE_proportional(delta, parameters)
 
 
 def PE_linear(oDelta, parameters):
