@@ -1,10 +1,10 @@
 import transforms
 
-"""Non-standard graph implementation, intended for use in modelling.
+"""Non-standard graph implementation, intended for use in modeling.
 
-While initially developed with macroeconomic modelling in mind, the
+While initially developed with macroeconomic modeling in mind, the
 graph implementation of the DismalSim package is designed to also be
-useful for modelling other linked dynamic systems.
+useful for modeling other linked dynamic systems.
 
 Classes:
     - Vertex
@@ -22,7 +22,7 @@ Exceptions:
 class Vertex:
     """The Vertex class, intended for use in a Graph.
 
-    The Vertex class is designed for usage in directed graphs, and
+    The Vertex class is designed for usage in directed graphs, and it
     maintains a system of dual references to the directed edges between
     vertices. This is done through the usage of separate <parents> and
     <children> dictionaries of edges. When an edge is created between
@@ -31,10 +31,11 @@ class Vertex:
     Vertex uses the 'parent' Vertex as an entry in its <parents>
     dictionary. A Tuple containing information about the relationship
     represented by the edge is shared by the dictionaries. This system
-    of dual references, while technically unnecessary enables the Graph
-    to be used with either Generous-Parent or Greedy-Child Transform
-    paradigms. This reference redundancy can also to some extent,
-    enable the Graph to be considered both directed and undirected.
+    of dual references, while technically unnecessary, enables the
+    Graph to be used with either Generous-Parent or Greedy-Child
+    Transform paradigms. This reference redundancy can also to some
+    extent enable the Graph to be considered both directed and
+    undirected.
 
     Supported Transform Types:
         - Proportional (Absolute-Edge, Percent-Edge)
@@ -49,7 +50,7 @@ class Vertex:
           tuple for an edge. This dictionary is shared across all
           instances of the Vertex class.
         - self.name, the name of the Vertex. It takes its value from
-          the <name> argument of the __init__ method, and must be a
+          the <name> argument of the __init__ method, and it must be a
           string.
         - self.data, the data contained by the Vertex. It takes its
           value from the <data> parameter, which defaults to None. It
@@ -59,8 +60,8 @@ class Vertex:
           When edges are added to the Vertex, the parent Vertex is used
           as the key for the dictionary; the value in the key-value
           pair is a Tuple containing a value that corresponds to a
-          specific gc_transform function, and the parameters for that
-          gc_transform function.
+          specific gc_transform function, as well as the parameters for
+          that gc_transform function.
         - self.children, the dictionary containing the child vertices.
           When the Vertex is instantiated, the dictionary is empty.
           When edges are added to the Vertex, the child Vertex is used
@@ -69,17 +70,17 @@ class Vertex:
           specific gc_transform function, and the parameters for that
           gc_transform function.
         - self.absDeltaPrev, the list of previous absolute delta
-          values. These are used for modelling changes to the vertex in
+          values. These are used for modeling changes to the vertex in
           a linked system--the previous absolute delta values are used
           to calculate the floating delta of the Vertex's children.
         - self.perDeltaPrev, the list of previous percent delta values.
-          These are used for modelling changes to the vertex in a
+          These are used for modeling changes to the vertex in a
           linked system--the previous absolute delta values are used to
           calculate the floating delta of the Vertex's children.
         - self.deltaFloat, the absolute floating delta value. This
-          value is what edge and self transforms modify, and as it does
-          not modify the Vertex's data until explicitly applied, is
-          considered to 'float'.
+          value is what edge and self transforms modify, and, as it
+          does not modify the Vertex's data until explicitly applied,
+          it is considered to 'float'.
 
     Public Methods:
         - get_name
@@ -116,7 +117,7 @@ class Vertex:
     def __init__(self, name, data=None):
         """Initializes class data for a Vertex.
 
-        The method initializes the Vertex to a default state; Only the
+        The method initializes the Vertex to a default state; only the
         <name> parameter is required, though the <data> can also be set
         during instantiation. All other class data is set to default
         values, independent of method arguments. Additionally,
@@ -126,8 +127,8 @@ class Vertex:
         Method Parameters:
             - name, the name for the method to give the Vertex; it is
             required.
-            - data, the data for the method to instantiate the Vertex
-            with; it defaults to None.
+            - data, the data for the method with which to instantiate
+            the Vertex; it defaults to None.
         """
 
         if data is not None and not isinstance(data, (int, float)):
@@ -233,11 +234,11 @@ class Vertex:
             return False
 
     def add_parent(self, pVertex, tData):
-        """Adds an edge reference with <pVertex> as the 'parent'."""
+        """Adds an edge reference with <pVertex> as the 'parent.'"""
         self.parents[pVertex] = tData
 
     def remove_parent(self, pVertex):
-        """Removes edge reference where <pVertex> is the 'parent'."""
+        """Removes edge reference where <pVertex> is the 'parent.'"""
         try:
             del self.parents[pVertex]
         except KeyError:
@@ -255,11 +256,11 @@ class Vertex:
             return False
 
     def add_child(self, cVertex, tData):
-        """Adds an edge reference with <cVertex> as the 'child'."""
+        """Adds an edge reference with <cVertex> as the 'child.'"""
         self.children[cVertex] = tData
 
     def remove_child(self, cVertex):
-        """Removes edge reference where <cVertex> is the 'child'."""
+        """Removes edge reference where <cVertex> is the 'child.'"""
         try:
             del self.children[cVertex]
         except KeyError:
@@ -270,9 +271,9 @@ class Vertex:
 
         The method serves primarily as a wrapper for the add_parent and
         add_child methods of the Vertex class, using them for the
-        actual creation of the edge. It does however, perform the
-        gc_transform lookup, pulling the integer gc_transform key, used for
-        cleaner gc_transform selection statements, from the
+        actual creation of the edge. It does, however, perform the
+        gc_transform lookup, pulling the integer gc_transform key, used
+        for cleaner gc_transform selection statements, from the
         TransformKeyMap dictionary.
 
         Method Parameters:
@@ -362,7 +363,7 @@ class Vertex:
         pass
 
     def def_transform(self):
-        """Calculates a definitional 'deltaFloat'."""
+        """Calculates a definitional 'deltaFloat.'"""
         for pVertex in self.parents:
             tData = self.parents[pVertex]
             tKey = tData[0]
@@ -381,7 +382,7 @@ class Graph:
     This Graph is a directed one, though the dual edge references
     maintained by the Graph's vertices enable it be used in a fashion
     similar to an undirected one, if needed. The Graph is primarily
-    implemented as a container for its vertices, and many, but not all
+    implemented as a container for its vertices, and many, but not all,
     of the Graph's methods are just wrappers for the equivalent Vertex
     methods.
 
@@ -405,9 +406,9 @@ class Graph:
         When the Graph is instantiated, it defaults to an empty state.
         However, the method takes vertices as optional positional
         arguments. The vertices in the arguments have their names
-        extracted, and are added to the Graph's dictionary of vertices,
-        indexed by their extracted name. Additionally, if any objects
-        that are not instances of the Vertex class are passed in to the
+        extracted and are added to the Graph's dictionary of vertices,
+        indexed by their extracted names. Additionally, if any objects
+        that are not instances of the Vertex class are passed into the
         method, it raises an InitError.
 
         Method Parameters:
@@ -442,8 +443,8 @@ class Graph:
         the keys of the 'vertices' dictionary.
 
         Method Parameters:
-            - aVertex, a reference to an instance of the Vertex, or a
-              string, corresponding to a Vertex's name.
+            - aVertex, a reference to an instance of the Vertex class,
+            or a string corresponding to a Vertex's name.
         """
 
         if isinstance(aVertex, str) and aVertex in self.vertices.keys():
@@ -454,7 +455,7 @@ class Graph:
             return False
 
     def __len__(self):
-        """Returns the number of Vertices in the Graph."""
+        """Returns the number of vertices in the Graph."""
         return len(self.vertices)
 
     def __iter__(self):
@@ -466,7 +467,7 @@ class Graph:
         return list(self.vertices.values())
 
     def get_vertex(self, vName):
-        """Retrieves a vertex from the graph based on it's name."""
+        """Retrieves a Vertex from the graph based on its name."""
         try:
             aVertex = self.vertices[vName]
         except KeyError:
@@ -474,13 +475,13 @@ class Graph:
         return aVertex
 
     def add_vertex(self, name, data=None):
-        """Instantiates and adds a new vertex to the Graph.
+        """Instantiates and adds a new Vertex to the Graph.
 
         Method Parameters:
-            - name, the name of the vertex to be instantiated and added
+            - name, the name of the Vertex to be instantiated and added
               to the Graph. This parameter is required.
             - data, the data for the new Vertex to contain. It is an
-              optional parameter, and defaults to None.
+              optional parameter and defaults to None.
         """
         newVertex = Vertex(name, data)
         self.vertices[name] = newVertex
@@ -493,7 +494,7 @@ class Graph:
         """Adds a directed edge to the Graph.
 
         The function is primarily a wrapper for the Vertex add_edge
-        method, and creates a directed edge between <pVertex> and
+        method and creates a directed edge between <pVertex> and
         <cVertex>.
 
         Method Parameters:
@@ -541,7 +542,7 @@ class GraphError(Exception):
     The GraphError base class defines __init__ and __str__ methods, to
     be used by the assorted exceptions that subclass it. While all
     methods are shared between exception classes in this module, the
-    'messages' class data is unique to each exception class, and
+    'messages' class data is unique to each exception class and
     dictates the messages displayed by the exception.
 
     Class Data:
@@ -592,13 +593,17 @@ class EdgeError(GraphError):
     """
 
     messages = {0: "Transform function name not in dictionary, unable to map"
-                   " gc_transform to gc_transform key. The edge cannot be created.",
-                1: "Object passed in as <cVertex> argument invalid. Object must"
-                   " be an instance of Vertex class. Unable to create edge.",
+                   " gc_transform to gc_transform key. The edge cannot be"
+                   " created.",
+                1: "Object passed in as <cVertex> argument invalid. Object"
+                   " must be an instance of Vertex class. Unable to create"
+                   " edge.",
                 2: "Object passed in as <pVertex> argument not in Vertex's"
-                   " 'parents' dictionary. Cannot remove non-existent 'parent'",
+                   " 'parents' dictionary. Cannot remove non-existent"
+                   " 'parent'",
                 3: "Object passed in as <cVertex> argument not in Vertex's"
-                   " 'children' dictionary. Cannot remove non-existent 'child'",
+                   " 'children' dictionary. Cannot remove non-existent"
+                   " 'child'",
                 4: "object passed in as <pVertex> argument is not an instance"
                    " of the Vertex class. Unable to remove edges from fake"
                    " vertices."}
@@ -616,8 +621,8 @@ class DataError(GraphError):
 
     messages = {0: "Invalid value for Vertex 'data' attribute, unable to set"
                    " 'data' to <newData>",
-                1: "Invalid value for Vertex 'absDeltaPrev' attribute, unable to"
-                   " set 'absDeltaPrev' to <newDelta>",
+                1: "Invalid value for Vertex 'absDeltaPrev' attribute, unable"
+                   " to set 'absDeltaPrev' to <newDelta>",
                 2: "Invalid value for Vertex 'deltaFloat' attribute, unable to"
                    " set 'deltaFloat' to <newDelta>"}
 
@@ -625,7 +630,7 @@ class DataError(GraphError):
 class RetrievalError(GraphError):
     """Exception for attempting to retrieve non-existent data.
 
-    This exception is raised when either a Vertex's 'data' attribute is
+    This exception is raised either when a Vertex's 'data' attribute is
     None, or when attempting to retrieve a Vertex by name from a Graph,
     and the Vertex isn't present.
 
