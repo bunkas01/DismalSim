@@ -15,11 +15,11 @@ aGraph.add_vertex("A", 10)
 aGraph.add_vertex("B", 10)
 aGraph.add_vertex("C", 10)
 aGraph.add_vertex("D", 10)
-aGraph.add_edge("A", "B", "abs_linear", [2, 2])
-aGraph.add_edge("A", "C", "per_linear", [10, 15])
-aGraph.add_edge("B", "D", "def_proportional", [1])
-aGraph.add_edge("C", "D", "def_proportional", [1])
-aGraph.add_edge("D", "A", "abs_proportional", [2])
+aGraph.add_edge("A", "B", "aa_lin", [2, 2])
+aGraph.add_edge("A", "C", "pp_lin", [10, 15])
+aGraph.add_edge("B", "D", "aa_lin", [1])
+aGraph.add_edge("C", "D", "aa_lin", [1])
+aGraph.add_edge("D", "A", "aa_lin", [2])
 
 # Next, define the initial changes, in a dictionary. Use the names of
 # the vertices as the dictionary keys, and the changes as the values.
