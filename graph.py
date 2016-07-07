@@ -107,12 +107,9 @@ class Vertex:
         - gp_transform
     """
 
-    transformKeyMap = {"abs_proportional": 0, "abs_linear": 1,
-                       "abs_exponential": 2, "abs_polynomial": 3,
-                       "per_proportional": 4, "per_linear": 5,
-                       "per_exponential": 6, "per_polynomial": 7,
-                       "def_proportional": 8, "def_red": 9, "red": 10,
-                       "green": 11}
+    transformKeyMap = {"aa_lin": 0, "aa_exp": 1, "aa_poly": 2, "ap_lin": 3,
+                       "ap_exp": 4, "ap_poly": 5, "pa_lin": 6, "pa_exp": 7,
+                       "pa_poly": 8, "pp_lin": 9, "pp_exp": 10, "pp_poly": 11}
 
     def __init__(self, name, data=None):
         """Initializes class data for a Vertex.
@@ -324,56 +321,55 @@ class Vertex:
             tData = self.parents[pVertex]
             tKey = tData[0]
             tData = tData[1:]
-            if tKey in (0, 1 ,2 ,3, 11):
-                pDelta = pVertex.get_abs_delta_prev()
-            else:
-                pDelta = pVertex.get_per_delta_prev()
+            if tKey >= 0 and tKey <= 5:
+                pDelta = self.absDeltaPrev[0]
+            elif tKey >= 6 and tKey <= 11:
+                pDelta = self.perDeltaPrev[0]
             if tKey == 0:
-                self.deltaFloat += transforms.AE_proportional(pDelta, tData)
+                nDelta = transforms.AA_linear(pDelta, tData)
             elif tKey == 1:
-                self.deltaFloat += transforms.AE_linear(pDelta, tData)
+                nDelta = transforms.AA_exponential(pDelta, tData)
             elif tKey == 2:
-                self.deltaFloat += transforms.AE_exponential(pDelta, tData)
+                nDelta = transforms.AA_polynomial(pDelta, tData)
             elif tKey == 3:
-                self.deltaFloat += transforms.AE_polynomial(pDelta, tData)
+                nDelta = transforms.AP_linear(pDelta, tData)
             elif tKey == 4:
-                self.deltaFloat += (self.data *
-                                    transforms.PE_proportional(pDelta, tData))
+                nDelta = transforms.AP_exponential(pDelta, tData)
             elif tKey == 5:
-                self.deltaFloat += self.data * transforms.PE_linear(pDelta,
-                                                                    tData)
+                nDelta = transforms.AP_polynomial(pDelta, tData)
             elif tKey == 6:
-                self.deltaFloat += self.data * transforms.PE_exponential(pDelta,
-                                                                         tData)
+                nDelta = transforms.PA_linear(pDelta, tData)
             elif tKey == 7:
-                self.deltaFloat += self.data * transforms.PE_polynomial(pDelta,
-                                                                        tData)
+                nDelta = transforms.PA_exponential(pDelta, tData)
+            elif tKey == 8:
+                nDelta = transforms.PA_polynomial(pDelta, tData)
+            elif tKey == 9:
+                nDelta = transforms.PP_linear(pDelta, tData)
             elif tKey == 10:
-                self.deltaFloat += transforms.red_edge(pDelta, tData)
+                nDelta = transforms.PP_exponential(pDelta, tData)
             elif tKey == 11:
-                self.deltaFloat += self.data * transforms.green_edge(pDelta,
-                                                                     tData)
-        # newData = self.data + self.deltaFloat
-        # self.absDeltaPrev.insert(0, self.deltaFloat)
-        # self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
-        # self.data += self.deltaFloat
+                nDelta = transforms.PP_polynomial(pDelta, tData)
+            if tKey in (0, 1, 2, 6, 7, 8):  # Applies absolute changes
+                self.deltaFloat += nDelta
+            else:  # Applies percentage changes
+                self.deltaFloat += nDelta * self.data
 
     def gp_transform(self):
         """Calculates 'deltaFloat' based on a generous-parent paradigm."""
         pass
 
-    def def_transform(self):
-        """Calculates a definitional 'deltaFloat.'"""
-        for pVertex in self.parents:
-            tData = self.parents[pVertex]
-            tKey = tData[0]
-            tData = tData[1:]
-            if tKey == 8:
-                pDelta = pVertex.get_abs_delta_prev()
-                self.deltaFloat += transforms.DAE_proportional(pDelta, tData)
-            elif tKey == 9:
-                pDelta = pVertex.get_per_delta_prev()
-                self.deltaFloat += transforms.def_red(pDelta, tData)
+    # def def_transform(self):
+    #     """Calculates a definitional 'deltaFloat.'"""
+    #     for pVertex in self.parents:
+    #         tData = self.parents[pVertex]
+    #         tKey = tData[0]
+    #         tData = tData[1:]
+    #         if tKey == 8:
+    #             pDelta = pVertex.get_abs_delta_prev()
+    #             self.deltaFloat += transforms.DAE_proportional(pDelta, tData)
+    #         elif tKey == 9:
+    #             pDelta = pVertex.get_per_delta_prev()
+    #             self.deltaFloat += transforms.def_red(pDelta, tData)
 
 
 class Graph:
@@ -733,14 +729,14 @@ def main():
     # Create edges, through Graph and Vertex methods
     vertex5 = Vertex("E", 5)
     aGraph.add_existing_vertex(vertex5)
-    vertex1.add_edge(vertex2, "abs_proportional", [1])
-    aGraph.add_edge(vertex1, vertex3, "abs_linear", [3, 3])
-    aGraph.add_edge(vertex2, aGraph.get_vertex("D"), "abs_linear", [2, 1])
-    aGraph.add_edge(vertex2, vertex5, "abs_exponential", [2, 3])
-    aGraph.add_edge(vertex3, vertex1, "abs_polynomial", [2, 1])
-    vertex3.add_edge(aGraph.get_vertex("D"), "abs_proportional", [2])
-    aGraph.get_vertex("D").add_edge(vertex3, "abs_linear", [1, 1])
-    vertex5.add_edge(aGraph.get_vertex("D"), "abs_exponential", [3])
+    vertex1.add_edge(vertex2, "aa_lin", [1])
+    aGraph.add_edge(vertex1, vertex3, "aa_lin", [3, 3])
+    aGraph.add_edge(vertex2, aGraph.get_vertex("D"), "aa_lin", [2, 1])
+    aGraph.add_edge(vertex2, vertex5, "pa_exp", [2, 3])
+    aGraph.add_edge(vertex3, vertex1, "pa_lin", [2, 1])
+    vertex3.add_edge(aGraph.get_vertex("D"), "pp_lin", [2])
+    aGraph.get_vertex("D").add_edge(vertex3, "aa_lin", [1, 1])
+    vertex5.add_edge(aGraph.get_vertex("D"), "aa_exp", [3])
 
     # Remove edges, through Graph and Vertex methods
     vertex1.remove_edge(vertex3)
