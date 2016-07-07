@@ -3,24 +3,39 @@
 The transform functions of this module represent a variety of
 generalized, predefined transforms for the transform method of the
 Vertex class to call. These transforms are what enable the graph to
-model complex changes in a linked system. The leading identifier on
-each transform function denotes the type of value it takes when
-calculating a new delta, and whether its calculations are based upon
-edge relationships.
+model complex changes in a linked system. The leading identifier on the
+function names is shorthand for the input and output, not in the usual
+sense of a return type, but in terms of whether the transform takes an
+absolute or percentage value as input, and returns an absolute or
+percentage value as output. When a percentage change is returned, it is
+returned as a multiplier, not a percentage proper. Additionally, a
+'base' identifier is used, marking the wrapped functions containing
+code shared across analogous transform types.
 
 Function Identifiers:
-    - AE, Absolute Edge
-    - PE, Percent Edge
-    - AS, Absolute Self
-    - PS, Percent Self
-    - DAE, Definitional Absolute Edge
-    - DPE, Definitional Percent Edge
+    - AA, takes an absolute change, returns an absolute change.
+    - AP, takes an absolute change, returns a percentage change.
+    - PA, takes a percentage change, returns an absolute change.
+    - PP, takes a percentage change, returns a percentage change.
+    - base, a basic transform function, wrapped by the other functions
+      to reduce code repetition.
 
 Functions:
-    - AE_propotional
-    - AE_linear
-    - AE_polynomial
-    - AE_exponential
+    - base_linear
+    - base_exponential
+    - base_polynomial
+    - AA_linear
+    - AA_exponential
+    - AA_polynomial
+    - AP_linear
+    - AP_exponential
+    - AP_polynomial
+    - PA_linear
+    - PA_exponential
+    - PA_polynomial
+    - PP_ linear
+    - PP_exponential
+    - PP_polynomial
 
 Exceptions:
     - TransformError
@@ -67,118 +82,60 @@ class ParameterError(TransformError):
                    " float. Unable to use value for computation."}
 
 
-def AE_proportional(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
+def base_linear(value, parameters):
+    """Basic linear transform function, intended for wrapping.
 
-    The function extracts a value from the (theoretically) single-item
-    sequence <parameters>, and multiplies this proportional constant by
-    the previous absolute delta value to calculate the new delta value.
+    The defined ordering for the sequence is [gradient, <intercept>],
+    where the intercept is optional, and will default to 0.
 
     Function Arguments:
-        - oDelta, the old absolute delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
+        - value, the value to be linearly transformed
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
     """
 
     if isinstance(parameters, (tuple, list)):
         try:
-            nDelta = oDelta * parameters[0]
-            return float(nDelta)
+            gradient = parameters[0]  # Extracts the gradient
+            if len(parameters) > 1:  # For expressions with an intercept
+                intercept = parameters[1]  # Extracts the intercept, if present
+            else:  # For expressions without a constant
+                intercept = 0
+            newVal = (gradient * value) + intercept
+            return float(newVal)
         except IndexError:
             raise ParameterError(1)
         except ValueError:
+            raise ParameterError(2)
+        except TypeError:
             raise ParameterError(2)
     else:
         raise ParameterError(0)
 
 
-def AE_linear(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
+def base_exponential(value, parameters):
+    """Basic exponential transform function, intended for wrapping.
 
-    The function extracts the gradient and intercept from the
-    (hopefully) two-item sequence <parameters>, and uses them to
-    calculate a new delta value based on a linear relationship between
-    the old one and the new. The defined ordering in the sequence is
-    [gradient, intercept].
+    The defined ordering for the sequence is [base, <constant>], where
+    the constant is optional and will default to 0.
 
     Function Arguments:
-        - oDelta, the old absolute delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
+        - value, the value to be exponentially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
     """
 
     if isinstance(parameters, (tuple, list)):
         try:
-            gradient = parameters[0]
-            intercept = parameters[1]
-            nDelta = oDelta * gradient + intercept
-            return float(nDelta)
-        except IndexError:
-            raise ParameterError(1)
-        except ValueError:
-            raise ParameterError(2)
-    else:
-        raise ParameterError(0)
-
-
-def AE_polynomial(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
-
-    The function supports a polynomial of arbitrary length, and if the
-    polynomial includes a constant, does not require an exponent of
-    zero in the sequence for that term of the expression. The exponent
-    and coefficient of each term are extracted in turn from the
-    sequence <parameters>. The defined order of the sequence is
-    [coefficient_1, exponent_1, ... , coefficient_n, exponent_n].
-
-    Function Arguments:
-        - oDelta, the old absolute delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
-    """
-
-    if isinstance(parameters, (tuple, list)):
-        try:
-            nDelta = 0
-            for k in range(len(parameters) // 2):
-                coefficient = parameters[2 * k]
-                exponent = parameters[(2 * k) + 1]
-                nDelta += coefficient * (oDelta ** exponent)
-            if len(parameters) % 2 != 0:
-                nDelta += parameters[len(parameters) - 1]
-            return float(nDelta)
-        except IndexError:
-            raise ParameterError(1)
-        except ValueError:
-            raise ParameterError(2)
-    else:
-        raise ParameterError(0)
-
-
-def AE_exponential(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
-
-    The function extracts the base and constant from the (hopefully)
-    two-item sequence <parameters>, and uses them to calculate a new
-    delta value based on an exponential relationship between the old
-    one and the new. The defined ordering in the sequence is [base,
-    constant].
-
-    Function Arguments:
-        - oDelta, the old absolute delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
-    """
-
-    if isinstance(parameters, (tuple, list)):
-        try:
-            base = parameters[0]
-            if len(parameters) == 1:
+            base = parameters[0]  # Extracts the base
+            if len(parameters) > 1:  # For expressions with a constant
+                constant = parameters[1]  # Extracts the constant, if present
+            else:  # For expressions without a constant
                 constant = 0
-            else:
-                constant = parameters[1]
-            nDelta = (base ** oDelta) + constant
-            return float(nDelta)
+            newVal = (base ** value) + constant
+            return float(newVal)
         except IndexError:
             raise ParameterError(1)
         except ValueError:
@@ -187,114 +144,279 @@ def AE_exponential(oDelta, parameters):
         raise ParameterError(0)
 
 
-def PE_proportional(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
+def base_polynomial(value, parameters):
+    """Basic polynomial transform function, intended for wrapping.
 
-    The returned delta is the value by which the data should be
-    multiplied to produce an X% percent change.
-
-    Function Arguments:
-        - oDelta, the old percent delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
-    """
-
-    pDelta = AE_proportional(oDelta, parameters)
-    nDelta = (pDelta / 100) + 1
-    return nDelta
-
-
-def red_edge(delta, parameters):
-    return AE_linear(delta, parameters)
-
-
-def green_edge(delta, parameters):
-    pDelta = AE_linear(delta, parameters)
-    nDelta = (pDelta / 100) +1
-    return nDelta
-
-
-def def_red(delta, parameters):
-    return AE_proportional(delta, parameters)
-
-
-def PE_linear(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
-
-    The returned delta is the value by which the data should be
-    multiplied to produce an X% percent change.
+    The defined ordering for the sequence is [coefficient 1,
+    exponent 1, coefficient 2, exponent 2, . . . , coefficient n,
+    exponent n], where n is an arbitrary integer, as the function
+    supports polynomial expressions of arbitrary length.
 
     Function Arguments:
-        - oDelta, the old percent delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
+        - value, the value to be polynomially transformed
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
     """
 
-    pDelta = AE_linear(oDelta, parameters)
-    nDelta = (pDelta / 100) + 1
-    return nDelta
+    if isinstance(parameters, (tuple, list)):
+        try:
+            newVal = 0
+            for k in range(len(parameters) // 2):
+                coefficient = parameters[2 * k]  # Extracts the coefficient
+                exponent = parameters[(2 * k) + 1]  # Extracts the exponent
+                newVal += coefficient * (value ** exponent)
+            if len(parameters) % 2 != 0:  # For polynomials with constants
+                constant = parameters[len(parameters) - 1]
+                newVal += constant
+            return float(newVal)
+        except IndexError:
+            raise ParameterError(1)
+        except ValueError:
+            raise ParameterError(2)
+        except TypeError:
+            raise ParameterError(2)
+    else:
+        raise ParameterError(0)
 
 
-def PE_exponential(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
+def AA_linear(value, parameters):
+    """Returns an absolute change based on an absolute change.
 
-    The returned delta is the value by which the data should be
-    multiplied to produce an X% percent change.
+    This function is a wrapper function for base_linear, and is
+    intended to simplify computation of linearly related changes, as
+    well as simplify the usage of transform functions in Vertex
+    transform methods.
 
     Function Arguments:
-        - oDelta, the old percent delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
+        - value, the value to be linearly transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
     """
 
-    pDelta = AE_exponential(oDelta, parameters)
-    nDelta = (pDelta / 100) + 1
-    return nDelta
+    newVal = base_linear(value, parameters)
+    return newVal
 
 
-def PE_polynomial(oDelta, parameters):
-    """Calculates a new delta based on supplied arguments.
+def AA_exponential(value, parameters):
+    """Returns an absolute change based on an absolute change.
 
-    The returned delta is the value by which the data should be
-    multiplied to produce an X% percent change.
+    This function is a wrapper function for base_exponential, and is
+    intended to simplify computation of exponentially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
 
     Function Arguments:
-        - oDelta, the old percent delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
+        - value, the value to be exponentially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
     """
 
-    pDelta = AE_polynomial(oDelta, parameters)
-    nDelta = (pDelta / 100) + 1
-    return nDelta
+    newVal = base_exponential(value, parameters)
+    return newVal
 
 
-def DAE_proportional(delta, parameters):
-    """Calculates a new delta based on supplied arguments.
+def AA_polynomial(value, parameters):
+    """Returns an absolute change based on an absolute change.
 
-    The returned delta is the absolute definitional change in a vertex.
+    This function is a wrapper function for base_polynomial, and is
+    intended to simplify computation of polynomially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
 
     Function Arguments:
-        - delta, the absolute definitional delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
+        - value, the value to be polynomially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
     """
 
-    return AE_proportional(delta, parameters)
+    newVal = base_polynomial(value, parameters)
+    return newVal
 
 
-def DPE_proportional(delta, parameters):
-    """Calculates a new delta based on supplied arguments.
+def AP_linear(value, parameters):
+    """Returns a percentage change based on an absolute change.
 
-    The returned delta is the absolute definitional change in a vertex.
+    This function is a wrapper function for base_linear, and is
+    intended to simplify computation of linearly related changes, as
+    well as simplify the usage of transform functions in Vertex
+    transform methods.
 
     Function Arguments:
-        - delta, the absolute definitional delta value.
-        - parameters, the sequence of parameters to be used for
-          calculating the new delta value.
+        - value, the value to be linearly transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
     """
 
-    return AE_proportional(delta, parameters)
+    percentage = base_linear(value, parameters)
+    multiplier = (percentage / 100)
+    return multiplier
+
+
+def AP_exponential(value, parameters):
+    """Returns a percentage change based on an absolute change.
+
+    This function is a wrapper function for base_exponential, and is
+    intended to simplify computation of exponentially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be exponentially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    percentage = base_exponential(value, parameters)
+    multiplier = (percentage / 100)
+    return multiplier
+
+
+def AP_polynomial(value, parameters):
+    """Returns a percentage change based on an absolute change.
+
+    This function is a wrapper function for base_polynomial, and is
+    intended to simplify computation of polynomially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be polynomially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    percentage = base_polynomial(value, parameters)
+    multiplier = (percentage / 100)
+    return multiplier
+
+
+def PA_linear(value, parameters):
+    """Returns an absolute change based on a percentage change.
+
+    This function is a wrapper function for base_linear, and is
+    intended to simplify computation of linearly related changes, as
+    well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be linearly transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    newVal = base_linear(value, parameters)
+    return newVal
+
+
+def PA_exponential(value, parameters):
+    """Returns an absolute change based on a percentage change.
+
+    This function is a wrapper function for base_exponential, and is
+    intended to simplify computation of exponentially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    This function is a wrapper function for base_linear, and is
+    intended to simplify computation of linearly related changes, as
+    well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be exponentially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    newVal = base_exponential(value, parameters)
+    return newVal
+
+
+def PA_polynomial(value, parameters):
+    """Returns an absolute change based on a percentage change.
+
+    This function is a wrapper function for base_polynomial, and is
+    intended to simplify computation of polynomially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be polynomially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    newVal = base_polynomial(value, parameters)
+    return newVal
+
+
+def PP_linear(value, parameters):
+    """Returns a percentage change based on a percentage change.
+
+    This function is a wrapper function for base_linear, and is
+    intended to simplify computation of linearly related changes, as
+    well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be linearly transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    percentage = base_linear(value, parameters)
+    multiplier = (percentage / 100)
+    return multiplier
+
+
+def PP_exponential(value, parameters):
+    """Returns a percentage change based on a percentage change.
+
+    This function is a wrapper function for base_exponential, and is
+    intended to simplify computation of exponentially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be exponentially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    percentage = base_exponential(value, parameters)
+    multiplier = (percentage / 100)
+    return multiplier
+
+
+def PP_polynomial(value, parameters):
+    """Returns a percentage change based on a percentage change.
+
+    This function is a wrapper function for base_polynomial, and is
+    intended to simplify computation of polynomially related changes,
+    as well as simplify the usage of transform functions in Vertex
+    transform methods.
+
+    Function Arguments:
+        - value, the value to be polynomially transformed.
+        - parameters, the container sequence (Current implementation
+          accepts tuples and lists) holding the parameters for the
+          transform function.
+    """
+
+    percentage = base_polynomial(value, parameters)
+    multiplier = (percentage / 100)
+    return multiplier
 
 
 def main():
@@ -310,42 +432,71 @@ def main():
 
     # Begin Error Test
     try:
-        AE_proportional(5, "A")
+        base_linear(5, "a")
     except ParameterError as error:
         print(error)
     try:
-        AE_linear(5, [5])
+        base_linear(5, [5])
     except ParameterError as error:
         print(error)
     try:
-        AE_proportional(5, ("a",))
+        base_linear(5, [5, "a"])
     except ParameterError as error:
         print(error)
     # End Error Test
 
     # Begin Computation Test
-    delta = AE_proportional(5, [5])  # Should return 25
-    print(delta)
-    delta = AE_linear(5, [2, 10])  # Should return 20
-    print(delta)
-    delta = AE_polynomial(5, (2, 2, 2, 2))  # Should return 100
-    print(delta)
-    delta = AE_polynomial(5, [2, 2, 10])  # Should return 60
-    print(delta)
-    delta = AE_exponential(5, [2, 32])  # Should return 64
-    print(delta)
-    delta = PE_proportional(2, [2])  # Should return 1.04
-    print(delta)
-    delta = PE_linear(2, [3, 1])  # Should return 1.07
-    print(delta)
-    delta = PE_polynomial(2, (2, 2, 2, 2))  # Should return 1.16
-    print(delta)
-    delta = PE_polynomial(2, [2, 2, 4])  # Should return 1.12
-    print(delta)
-    delta = PE_exponential(2, [2, 4])  # Should return 1.08
-    print(delta)
-    delta = DAE_proportional(23, [-2])  # Should return -46
-    print(delta)
+    # base transforms
+    print("Testing base transform functions.")
+    aVal = base_linear(5, [2, 5])  # Should return 15
+    print(aVal)
+    aVal = base_exponential(5, [2, 32])  # Should return 64
+    print(aVal)
+    aVal = base_polynomial(5, [2, 2, 3, 3])  # Should return 425
+    print(aVal)
+
+    # AA transforms
+    print("Testing absolute-absolute transform functions.")
+    aVal = AA_linear(3, [3, 2])  # Should return 11
+    print(aVal)
+    aVal = AA_exponential(2, [2, 4])  # Should return 8
+    print(aVal)
+    aVal = AA_polynomial(3, [1, 2, 2, 3, 9])  # Should return 72
+    print(aVal)
+
+    # AP transforms
+    print("Testing absolute-percentage transform functions.")
+    aVal = AP_linear(10, [3, 5])  # Should return .35
+    print(aVal)
+    print(aVal * 100)  # Should print 35
+    aVal = AP_exponential(7, [2])  # Should return 1.28
+    print(aVal)
+    print(aVal * 100)  # Should print 128
+    aVal = AP_polynomial(5, [1, 2])  # Should return .25
+    print(aVal)
+    print(aVal * 100)  # Should print 25
+
+    # PA transforms
+    print("Testing percentage-absolute transform functions.")
+    aVal = PA_linear(30, [2])  # Should return 60
+    print(aVal)
+    aVal = PA_exponential(2, [4, 16])  # Should return 32
+    print(aVal)
+    aVal = PA_polynomial(6, [1, 2, 12])  # Should return 48
+    print(aVal)
+
+    # PP transforms
+    print("testing percentage-percentage transform functions.")
+    aVal = PP_linear(20, [2.5, 6])  # Should return .56
+    print(aVal)
+    print(aVal * 100)  # Should print 56
+    aVal = PP_exponential(3, [3, 13])  # Should return .4
+    print(aVal)
+    print(aVal * 100)  # Should print 40
+    aVal = PP_polynomial(4, [1, 3, 1, 2])  # Should return .8
+    print(aVal)
+    print(aVal * 100)  # Should print 80
+
     # End Computation Test
 
 
