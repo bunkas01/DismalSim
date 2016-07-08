@@ -1,5 +1,6 @@
-import graph
 from openpyxl import Workbook
+
+from DismalSim.deltagraph import graph
 
 """Algorithms for calculating changes in dynamic graphs.
 

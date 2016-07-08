@@ -1,5 +1,5 @@
-import graph
-import deltacalc
+from DismalSim.deltagraph import deltacalc
+from DismalSim.deltagraph import graph
 
 """"Test Script.
 
