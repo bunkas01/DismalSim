@@ -1,4 +1,4 @@
-import transforms
+from DismalSim.deltagraph import transforms
 
 """Non-standard graph implementation, intended for use in modeling.
 

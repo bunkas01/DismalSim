@@ -1,5 +1,5 @@
-import graph
-import deltacalc
+from DismalSim.deltagraph import deltacalc
+from DismalSim.deltagraph import graph
 
 aGraph = graph.Graph()
 aGraph.add_vertex("G", 1920.2)
@@ -25,11 +25,15 @@ aGraph.add_edge("C", "Y", "aa_lin", [1])
 aGraph.add_edge("Y", "M", "aa_lin", [0.1045, 2.0599])
 aGraph.add_edge("M", "Y", "aa_lin", [-1])
 aGraph.add_edge("X", "Y", "aa_lin", [1])
+aGraph.add_edge("PL", "M", "aa_lin", [2.7145, 9.8097])
 aGraph.add_edge("Y", "PL", "aa_lin", [0.0159, 0.6069])
+aGraph.add_edge("PL", "M2", "aa_lin", [16.766, 42.133])
+aGraph.add_edge("M2", "PL", "aa_lin", [0.0211, 1.3332])
 aGraph.add_edge("Y", "M2", "aa_lin", [0.4264, 24.288])
 aGraph.add_edge("I", "Y", "aa_lin", [1])
 aGraph.add_edge("NIR", "RIR", "aa_lin", [1])
 aGraph.add_edge("FX", "X", "pp_lin", [-1.0399, 9.6864])
+aGraph.add_edge("NIR", "M2", "ap_lin", [-0.5897, 8.3919])
 aGraph.add_edge("NIR", "I", "ap_lin", [-2.4148, 9.5452])
 aGraph.add_edge("RIR", "FX", "ap_lin", [1.1715, -0.3175])
 aGraph.add_edge("PL", "RIR", "pa_lin", [-1])
@@ -41,4 +45,4 @@ iDelta = {"G": 114.4, "T": 50.4, "C": 134.6, "YD": 144, "M": -6.2, "Y": 194.4,
 
 output = deltacalc.gc_multicount_delta(aGraph, 10, iDelta)
 
-deltacalc.output_spreadsheet("test_01_data", output)
+deltacalc.output_spreadsheet("test_00_data", output)
