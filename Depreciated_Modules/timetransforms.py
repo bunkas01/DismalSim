@@ -1,5 +1,3 @@
-__author__ = "Ashleigh"
-
 """Assorted time-dependent transform functions.
 
 More specifically, these are transform functions where some parameter
@@ -13,12 +11,12 @@ Functions:
 
 
 def proportional_count_linear(delta, parameters, count):
-    """Proportional transform with linearly determined coefficient.
+    """Proportional gc_transform with linearly determined coefficient.
 
     The function arguments are as follows:
         - delta, the previous delta value, to be transformed into a new
           delta value.
-        - parameters, the list of parameters for the transform
+        - parameters, the list of parameters for the gc_transform
           function. List order is extremely important.
         - count, the current count of the function calling this
           function.

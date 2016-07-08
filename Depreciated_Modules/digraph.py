@@ -1,8 +1,6 @@
 import sys
 
-import edgenode
-
-__author__ = "Ashleigh"
+from Depreciated_Modules import edgenode
 
 """Contains the implementation of a directed graph.
 

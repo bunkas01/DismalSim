@@ -1,8 +1,6 @@
 import sys
 
-import digraph
-
-__author__ = "Ashleigh"
+from Depreciated_Modules import digraph
 
 """Assorted algorithms for testing DiGraph Functionality.
 

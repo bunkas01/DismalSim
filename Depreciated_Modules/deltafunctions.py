@@ -1,8 +1,6 @@
 from openpyxl import Workbook
 
-import digraph
-
-__author__ = "Ashleigh"
+from Depreciated_Modules import digraph
 
 """Assorted algorithms for calculating and applying changes to graphs.
 
@@ -38,7 +36,7 @@ def multicount_delta_application(aGraph, maxCount, initDeltaDict):
     modifies the graph in place, cyclically applying changes to any
     given Node based on the changes that the Node's parent Nodes
     experienced during the previous system count, modified by the
-    transform functions assigned to the TransformEdges linking the
+    gc_transform functions assigned to the TransformEdges linking the
     Nodes. This cyclic delta application continues until the maximum
     count is reached. Additionally, the function maintains a log of the
     values of each Node in the graph after each system count,
@@ -80,7 +78,7 @@ def multicount_delta_application(aGraph, maxCount, initDeltaDict):
     while count <= maxCount:
         for node in aGraph.get_all_nodes():
             for edge in node.get_all_edges():
-                edge.transform(count)
+                edge.gc_transform(count)
         aGraph.apply_all_new_deltas()
         i = 0
         for node in aGraph.get_all_nodes():
@@ -135,7 +133,7 @@ def exocount_delta_application(aGraph, maxCount, countFeedDict):
         if count != 0:
             for node in aGraph.get_all_nodes():
                 for edge in node.get_all_edges():
-                    edge.transform(count)
+                    edge.gc_transform(count)
         aGraph.apply_all_new_deltas()
         i = 0
         for node in aGraph.get_all_nodes():
@@ -180,7 +178,7 @@ def exonode_delta_application(aGraph, maxCount, countFeedDict):
         if count != 0:
             for node in aGraph.get_all_nodes():
                 for edge in node.get_all_edges():
-                    edge.transform(count)
+                    edge.gc_transform(count)
         if count in countFeedDict:
             deltaDict = countFeedDict[count]
             for key in deltaDict:
@@ -237,7 +235,7 @@ def main():
 
     A graph is instantiated, and five Nodes (A, B, C, D, E) are added
     to it. Assorted TransformEdges are created, all with the same
-    transform type and transform parameters. This graph is printed to
+    gc_transform type and gc_transform parameters. This graph is printed to
     the screen; then the exocount_delta_application function is
     called on it, followed by being printed to the screen again.
     Additionally, the list of change data returned by the algorithm is
