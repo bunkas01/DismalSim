@@ -350,7 +350,7 @@ class Vertex:
                 nDelta = transforms.PP_exponential(pDelta, tData)
             elif tKey == 11:
                 nDelta = transforms.PP_polynomial(pDelta, tData)
-            if tKey in (0, 1, 2, 6, 7, 8) and pDelta != 0:
+            if tKey in (0, 1, 2, 6, 7, 8):
                 # Applies absolute changes
                 self.deltaFloat += nDelta
             elif tKey in (3, 4, 5, 9, 10, 11) and pDelta != 0:
