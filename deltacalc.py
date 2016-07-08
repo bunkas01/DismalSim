@@ -30,7 +30,7 @@ def gen_data_log(aGraph):
     vDataDict = {}
     for vertex in aGraph:
         vName = vertex.get_name()
-        vData = [vName]
+        vData = [vName, vertex.get_data()]
         vDataDict[vName] = vData
     return vDataDict
 
@@ -93,7 +93,7 @@ def gc_multicount_delta(aGraph, maxCount, initDeltaDict):
             manual_delta(aGraph, initDeltaDict)
         else:
             gc_calc_delta(aGraph)
-            aGraph.apply_floating_deltas()
+        aGraph.apply_floating_deltas()
         log_data(aGraph, dataLog)
     return dataLog
 

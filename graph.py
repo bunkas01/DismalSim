@@ -218,6 +218,7 @@ class Vertex:
         self.absDeltaPrev.insert(0, self.deltaFloat)
         self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
         self.data += self.deltaFloat
+        self.deltaFloat = 0
 
     def get_parent_vertices(self):
         """Returns a list of the Vertex's parent vertices."""
@@ -322,9 +323,9 @@ class Vertex:
             tKey = tData[0]
             tData = tData[1:]
             if tKey >= 0 and tKey <= 5:
-                pDelta = self.absDeltaPrev[0]
+                pDelta = pVertex.get_abs_delta_prev()
             elif tKey >= 6 and tKey <= 11:
-                pDelta = self.perDeltaPrev[0]
+                pDelta = pVertex.get_per_delta_prev()
             if tKey == 0:
                 nDelta = transforms.AA_linear(pDelta, tData)
             elif tKey == 1:
@@ -349,27 +350,16 @@ class Vertex:
                 nDelta = transforms.PP_exponential(pDelta, tData)
             elif tKey == 11:
                 nDelta = transforms.PP_polynomial(pDelta, tData)
-            if tKey in (0, 1, 2, 6, 7, 8):  # Applies absolute changes
+            if tKey in (0, 1, 2, 6, 7, 8) and pDelta != 0:
+                # Applies absolute changes
                 self.deltaFloat += nDelta
-            else:  # Applies percentage changes
+            elif tKey in (3, 4, 5, 9, 10, 11) and pDelta != 0:
+                # Applies percentage changes
                 self.deltaFloat += nDelta * self.data
 
     def gp_transform(self):
         """Calculates 'deltaFloat' based on a generous-parent paradigm."""
         pass
-
-    # def def_transform(self):
-    #     """Calculates a definitional 'deltaFloat.'"""
-    #     for pVertex in self.parents:
-    #         tData = self.parents[pVertex]
-    #         tKey = tData[0]
-    #         tData = tData[1:]
-    #         if tKey == 8:
-    #             pDelta = pVertex.get_abs_delta_prev()
-    #             self.deltaFloat += transforms.DAE_proportional(pDelta, tData)
-    #         elif tKey == 9:
-    #             pDelta = pVertex.get_per_delta_prev()
-    #             self.deltaFloat += transforms.def_red(pDelta, tData)
 
 
 class Graph:
