@@ -24,11 +24,11 @@ class Vertex:
 
     The Vertex class is designed for usage in directed graphs, and it
     maintains a system of dual references to the directed edges between
-    vertices. This is done through the usage of separate <parents> and
-    <children> dictionaries of edges. When an edge is created between
-    two vertices, the 'parent' Vertex uses the 'child' Vertex as the
-    key for an entry in its <children> dictionary, and the 'child'
-    Vertex uses the 'parent' Vertex as an entry in its <parents>
+    _vertices. This is done through the usage of separate <_parents> and
+    <_children> dictionaries of edges. When an edge is created between
+    two _vertices, the 'parent' Vertex uses the 'child' Vertex as the
+    key for an entry in its <_children> dictionary, and the 'child'
+    Vertex uses the 'parent' Vertex as an entry in its <_parents>
     dictionary. A Tuple containing information about the relationship
     represented by the edge is shared by the dictionaries. This system
     of dual references, while technically unnecessary, enables the
@@ -55,29 +55,29 @@ class Vertex:
         - self.data, the data contained by the Vertex. It takes its
           value from the <data> parameter, which defaults to None. It
           must be either None, an integer, or a float.
-        - self.parents, the dictionary containing the parent vertices.
+        - self._parents, the dictionary containing the parent _vertices.
           When the Vertex is instantiated, the dictionary is empty.
           When edges are added to the Vertex, the parent Vertex is used
           as the key for the dictionary; the value in the key-value
           pair is a Tuple containing a value that corresponds to a
           specific gc_transform function, as well as the parameters for
           that gc_transform function.
-        - self.children, the dictionary containing the child vertices.
+        - self._children, the dictionary containing the child _vertices.
           When the Vertex is instantiated, the dictionary is empty.
           When edges are added to the Vertex, the child Vertex is used
           as the key for the dictionary; the value in the key-value
           pair is a Tuple containing a value that corresponds to a
           specific gc_transform function, and the parameters for that
           gc_transform function.
-        - self.absDeltaPrev, the list of previous absolute delta
+        - self._absDeltaPrev, the list of previous absolute delta
           values. These are used for modeling changes to the vertex in
           a linked system--the previous absolute delta values are used
-          to calculate the floating delta of the Vertex's children.
-        - self.perDeltaPrev, the list of previous percent delta values.
+          to calculate the floating delta of the Vertex's _children.
+        - self._perDeltaPrev, the list of previous percent delta values.
           These are used for modeling changes to the vertex in a
           linked system--the previous absolute delta values are used to
-          calculate the floating delta of the Vertex's children.
-        - self.deltaFloat, the absolute floating delta value. This
+          calculate the floating delta of the Vertex's _children.
+        - self._deltaFloat, the absolute floating delta value. This
           value is what edge and self transforms modify, and, as it
           does not modify the Vertex's data until explicitly applied,
           it is considered to 'float'.
@@ -133,28 +133,28 @@ class Vertex:
 
         self.name = str(name)
         self.data = data
-        self.parents = {}
-        self.children = {}
-        self.absDeltaPrev = [0]
-        self.perDeltaPrev = [0]
-        self.deltaFloat = 0
+        self._parents = {}
+        self._children = {}
+        self._absDeltaPrev = [0]
+        self._perDeltaPrev = [0]
+        self._deltaFloat = 0
 
     def __str__(self):
         """Returns a string describing the Vertex."""
         pList = []
         cList = []
-        for vertex in self.children:
+        for vertex in self._children:
             cList.append(vertex.get_name())
-        for vertex in self.parents:
+        for vertex in self._parents:
             pList.append(vertex.get_name())
-        vStr = ("Vertex {0} has value: {1}, is a parent of vertices: {2}, and a"
-                " child of vertices: {3}".format(self.name, str(self.data),
+        vStr = ("Vertex {0} has value: {1}, is a parent of _vertices: {2}, and a"
+                " child of _vertices: {3}".format(self.name, str(self.data),
                 " ".join(cList), " ".join(pList)))
         return vStr
 
     def __contains__(self, item):
         """Checks if the Vertex is linked by any edge to <item>."""
-        if item in self.parents or item in self.children:
+        if item in self._parents or item in self._children:
             return True
         else:
             return False
@@ -182,85 +182,85 @@ class Vertex:
 
     def get_abs_delta_prev(self):
         """Returns the previous absolute delta value."""
-        return self.absDeltaPrev[0]
+        return self._absDeltaPrev[0]
 
     def set_abs_delta_prev(self, newDelta):
         """Sets the previous absolute delta value to <newDelta>."""
         try:
-            self.absDeltaPrev.insert(0, float(newDelta))
+            self._absDeltaPrev.insert(0, float(newDelta))
         except ValueError:
             raise DataError(1)
 
     def get_per_delta_prev(self):
         """Returns the previous percent delta value."""
-        return self.perDeltaPrev[0]
+        return self._perDeltaPrev[0]
 
     def set_per_delta_prev(self, newDelta):
         """Sets the previous percent delta value to <newDelta>."""
         try:
-            self.perDeltaPrev.insert(0, float(newDelta))
+            self._perDeltaPrev.insert(0, float(newDelta))
         except ValueError:
             raise DataError(1)
 
     def get_delta_float(self):
         """Returns the Vertex's floating delta value."""
-        return self.deltaFloat
+        return self._deltaFloat
 
     def set_delta_float(self, newDelta):
         """Sets the Vertex's previous floating delta value to <newDelta>."""
         try:
-            self.deltaFloat = float(newDelta)
+            self._deltaFloat = float(newDelta)
         except ValueError:
             raise DataError(2)
     def apply_delta_float(self):
-        """Adds the current value of deltaFloat to data."""
-        newData = self.data + self.deltaFloat
-        self.absDeltaPrev.insert(0, self.deltaFloat)
-        self.perDeltaPrev.insert(0, (((newData / self.data) - 1)*100))
-        self.data += self.deltaFloat
-        self.deltaFloat = 0
+        """Adds the current value of _deltaFloat to data."""
+        newData = self.data + self._deltaFloat
+        self._absDeltaPrev.insert(0, self._deltaFloat)
+        self._perDeltaPrev.insert(0, (((newData / self.data) - 1) * 100))
+        self.data += self._deltaFloat
+        self._deltaFloat = 0
 
     def get_parent_vertices(self):
-        """Returns a list of the Vertex's parent vertices."""
-        return list(self.parents.keys())
+        """Returns a list of the Vertex's parent _vertices."""
+        return list(self._parents.keys())
 
     def check_parent(self, aVertex):
         """Checks if <aVertex> is a parent of the Vertex."""
-        if aVertex in self.parents:
+        if aVertex in self._parents:
             return True
         else:
             return False
 
     def add_parent(self, pVertex, tData):
         """Adds an edge reference with <pVertex> as the 'parent.'"""
-        self.parents[pVertex] = tData
+        self._parents[pVertex] = tData
 
     def remove_parent(self, pVertex):
         """Removes edge reference where <pVertex> is the 'parent.'"""
         try:
-            del self.parents[pVertex]
+            del self._parents[pVertex]
         except KeyError:
             raise EdgeError(2)
 
     def get_child_vertices(self):
-        """Returns a list of the Vertex's child vertices."""
-        return list(self.children.keys())
+        """Returns a list of the Vertex's child _vertices."""
+        return list(self._children.keys())
 
     def check_child(self, aVertex):
         """Checks if <aVertex> is a child of the Vertex."""
-        if aVertex in self.children:
+        if aVertex in self._children:
             return True
         else:
             return False
 
     def add_child(self, cVertex, tData):
         """Adds an edge reference with <cVertex> as the 'child.'"""
-        self.children[cVertex] = tData
+        self._children[cVertex] = tData
 
     def remove_child(self, cVertex):
         """Removes edge reference where <cVertex> is the 'child.'"""
         try:
-            del self.children[cVertex]
+            del self._children[cVertex]
         except KeyError:
             raise EdgeError(3)
 
@@ -312,14 +312,14 @@ class Vertex:
             raise EdgeError(3)
 
     def gc_transform(self):
-        """Calculates 'deltaFloat' based on a greedy-child paradigm.
+        """Calculates '_deltaFloat' based on a greedy-child paradigm.
 
-        When using the greedy-child transform paradigm, deltaFloat is
+        When using the greedy-child transform paradigm, _deltaFloat is
         calculated by pulling relevant data from the parent nodes.
         """
 
-        for pVertex in self.parents:
-            tData = self.parents[pVertex]
+        for pVertex in self._parents:
+            tData = self._parents[pVertex]
             tKey = tData[0]
             tData = tData[1:]
             if tKey >= 0 and tKey <= 5:
@@ -352,13 +352,13 @@ class Vertex:
                 nDelta = transforms.PP_polynomial(pDelta, tData)
             if tKey in (0, 1, 2, 6, 7, 8):
                 # Applies absolute changes
-                self.deltaFloat += nDelta
+                self._deltaFloat += nDelta
             elif tKey in (3, 4, 5, 9, 10, 11) and pDelta != 0:
                 # Applies percentage changes
-                self.deltaFloat += nDelta * self.data
+                self._deltaFloat += nDelta * self.data
 
     def gp_transform(self):
-        """Calculates 'deltaFloat' based on a generous-parent paradigm."""
+        """Calculates '_deltaFloat' based on a generous-parent paradigm."""
         pass
 
 
@@ -366,14 +366,14 @@ class Graph:
     """The Graph class, intended to model linked systems.
 
     This Graph is a directed one, though the dual edge references
-    maintained by the Graph's vertices enable it be used in a fashion
+    maintained by the Graph's _vertices enable it be used in a fashion
     similar to an undirected one, if needed. The Graph is primarily
-    implemented as a container for its vertices, and many, but not all,
+    implemented as a container for its _vertices, and many, but not all,
     of the Graph's methods are just wrappers for the equivalent Vertex
     methods.
 
     Class Data:
-        - self.vertices, a dictionary of the vertices contained in the
+        - _vertices, a dictionary of the _vertices contained in the
           Graph, indexed by the name of the Vertex. They take their
           initial value, if any, from the <*vertices> argument of the
           __init__ method.
@@ -390,9 +390,9 @@ class Graph:
         """Initializes class data for the Graph.
 
         When the Graph is instantiated, it defaults to an empty state.
-        However, the method takes vertices as optional positional
-        arguments. The vertices in the arguments have their names
-        extracted and are added to the Graph's dictionary of vertices,
+        However, the method takes _vertices as optional positional
+        arguments. The _vertices in the arguments have their names
+        extracted and are added to the Graph's dictionary of _vertices,
         indexed by their extracted names. Additionally, if any objects
         that are not instances of the Vertex class are passed into the
         method, it raises an InitError.
@@ -402,12 +402,12 @@ class Graph:
               vertices to be included in the Graph at instantiation.
         """
 
-        self.vertices = {}
-        if vertices is not None:
+        self._vertices = {}
+        if len(vertices) != 0:
             try:
                 for vertex in vertices:
                     vName = vertex.get_name()
-                    self.vertices[vName] = vertex
+                    self._vertices[vName] = vertex
             except AttributeError:
                 del self
                 raise InitError(1)
@@ -417,7 +417,7 @@ class Graph:
         vList = []
         for vertex in self:
             vList.append(vertex.get_name())
-        gStr = "The Graph contains vertices: {0}".format(" ".join(vList))
+        gStr = "The Graph contains _vertices: {0}".format(" ".join(vList))
         return gStr
 
     def __contains__(self, aVertex):
@@ -426,36 +426,59 @@ class Graph:
         <aVertex> may be either a reference to the Vertex itself, or a
         string. If it is a string, the string is treated as the
         Vertex's name, and the method checks if the name is present in
-        the keys of the 'vertices' dictionary.
+        the keys of the '_vertices' dictionary.
 
         Method Parameters:
             - aVertex, a reference to an instance of the Vertex class,
             or a string corresponding to a Vertex's name.
         """
 
-        if isinstance(aVertex, str) and aVertex in self.vertices.keys():
+        if isinstance(aVertex, str) and aVertex in self._vertices.keys():
             return True
-        elif aVertex in self.vertices.values():
+        elif aVertex in self._vertices.values():
             return True
         else:
             return False
 
     def __len__(self):
-        """Returns the number of vertices in the Graph."""
-        return len(self.vertices)
+        """Returns the number of _vertices in the Graph."""
+        return len(self._vertices)
 
     def __iter__(self):
-        """Returns an iterator over the vertices of the Graph."""
-        return iter(self.vertices.values())
+        """Returns an iterator over the _vertices of the Graph."""
+        return iter(self._vertices.values())
+
+    def __eq__(self, other):
+        """Tests equality of two graphs based on their vertices."""
+        pass
+
+    def __add__(self, other):
+        """Adds a vertex to the Graph.
+
+        The function takes either an instance of the Vertex class, or a
+        tuple containing data to instantiate a new Vertex, and adds the
+        Vertex to the Graph, instantiating it if necessary.
+        """
+
+        pass
+
+    def __getitem__(self, item):
+        pass
+
+    def __setitem__(self, key, value):
+        pass
+
+    def __delitem__(self, key):
+        pass
 
     def get_all_vertices(self):
-        """Returns a list of all vertices in the Graph."""
-        return list(self.vertices.values())
+        """Returns a list of all _vertices in the Graph."""
+        return list(self._vertices.values())
 
     def get_vertex(self, vName):
         """Retrieves a Vertex from the graph based on its name."""
         try:
-            aVertex = self.vertices[vName]
+            aVertex = self._vertices[vName]
         except KeyError:
             raise RetrievalError(1)
         return aVertex
@@ -470,11 +493,11 @@ class Graph:
               optional parameter and defaults to None.
         """
         newVertex = Vertex(name, data)
-        self.vertices[name] = newVertex
+        self._vertices[name] = newVertex
 
     def add_existing_vertex(self, aVertex):
         """Adds an already instantiated Vertex to the Graph."""
-        self.vertices[aVertex.get_name()] = aVertex
+        self._vertices[aVertex.get_name()] = aVertex
 
     def add_edge(self, pVertex, cVertex, tName, tParameters):
         """Adds a directed edge to the Graph.
@@ -571,7 +594,7 @@ class EdgeError(GraphError):
     """Exception for issues with Vertex edges.
 
     This exception will generally be raised when passing invalid
-    vertices to a Vertex's add_edge and remove_edge methods, as well as
+    _vertices to a Vertex's add_edge and remove_edge methods, as well as
     if an invalid gc_transform name is passed to the add_edge method.
 
     Superclass Differences:
@@ -585,14 +608,14 @@ class EdgeError(GraphError):
                    " must be an instance of Vertex class. Unable to create"
                    " edge.",
                 2: "Object passed in as <pVertex> argument not in Vertex's"
-                   " 'parents' dictionary. Cannot remove non-existent"
+                   " '_parents' dictionary. Cannot remove non-existent"
                    " 'parent'",
                 3: "Object passed in as <cVertex> argument not in Vertex's"
-                   " 'children' dictionary. Cannot remove non-existent"
+                   " '_children' dictionary. Cannot remove non-existent"
                    " 'child'",
                 4: "object passed in as <pVertex> argument is not an instance"
                    " of the Vertex class. Unable to remove edges from fake"
-                   " vertices."}
+                   " _vertices."}
 
 
 class DataError(GraphError):
@@ -607,10 +630,10 @@ class DataError(GraphError):
 
     messages = {0: "Invalid value for Vertex 'data' attribute, unable to set"
                    " 'data' to <newData>",
-                1: "Invalid value for Vertex 'absDeltaPrev' attribute, unable"
-                   " to set 'absDeltaPrev' to <newDelta>",
-                2: "Invalid value for Vertex 'deltaFloat' attribute, unable to"
-                   " set 'deltaFloat' to <newDelta>"}
+                1: "Invalid value for Vertex '_absDeltaPrev' attribute, unable"
+                   " to set '_absDeltaPrev' to <newDelta>",
+                2: "Invalid value for Vertex '_deltaFloat' attribute, unable to"
+                   " set '_deltaFloat' to <newDelta>"}
 
 
 class RetrievalError(GraphError):
@@ -626,7 +649,7 @@ class RetrievalError(GraphError):
 
     messages = {0: "Vertex data is None. Conventional operations on this data"
                    " are not recommended.",
-                1: "Vertex name not present in Graph 'vertices' dictionary."
+                1: "Vertex name not present in Graph '_vertices' dictionary."
                    " Unable to retrieve vertex."}
 
 
@@ -637,18 +660,18 @@ def main():
         - try-except blocks that deliberately result in raising the
           exceptions included in the module, followed by catching them
           to test and demonstrate the exceptions.
-        - Instantiating a Graph with vertices as positional arguments,
-          and adding further vertices via class methods, to test and
+        - Instantiating a Graph with _vertices as positional arguments,
+          and adding further _vertices via class methods, to test and
           demonstrate the Graph's instantiation and mutation.
-        - for loops iterating over the vertices of the Graph, to test
+        - for loops iterating over the _vertices of the Graph, to test
           and demonstrate its __iter__ method.
         - Creation and deletion of edges within a graph, to test and
           demonstrate relevant methods.
         - Print the Graph, to test both Graph and Vertex __str__
           methods.
-        - Forcibly set the absDeltaPrev attribute of all vertices in
+        - Forcibly set the _absDeltaPrev attribute of all _vertices in
           the test graph, and call the gc_transform method of those
-          vertices.
+          _vertices.
 
     """
 

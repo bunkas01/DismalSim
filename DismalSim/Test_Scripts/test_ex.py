@@ -8,7 +8,7 @@ naming scheme for test scripts: < test_xx >, where xx is a number, e.g.
 """
 
 
-# First, build the graph, adding all requisite vertices and edges, with
+# First, build the graph, adding all requisite _vertices and edges, with
 # the appropriate relationships.
 aGraph = graph.Graph()
 aGraph.add_vertex("A", 100)
@@ -22,7 +22,7 @@ aGraph.add_edge("C", "D", "aa_lin", [1])
 aGraph.add_edge("D", "A", "aa_lin", [2])
 
 # Next, define the initial changes, in a dictionary. Use the names of
-# the vertices as the dictionary keys, and the changes as the values.
+# the _vertices as the dictionary keys, and the changes as the values.
 iDelta = {"A": 20, "B": 5}
 
 # Now, run the sim itself, for a specified number of cycles.

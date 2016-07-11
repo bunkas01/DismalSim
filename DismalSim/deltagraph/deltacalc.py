@@ -19,9 +19,9 @@ def gen_data_log(aGraph):
     """Creates a dict-of-lists to record data from delta calculations.
 
     The function creates a new dictionary, in which to store the 'data'
-    attributes of vertices at each step in an iterative simulation. The
+    attributes of _vertices at each step in an iterative simulation. The
     dictionary entries are indexed by Vertex, and the associated values
-    are lists of the vertices 'data' attribute, intended to be written
+    are lists of the _vertices 'data' attribute, intended to be written
     to after each cycle of the simulation.
 
     Function Arguments:
