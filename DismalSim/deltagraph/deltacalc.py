@@ -74,7 +74,7 @@ def gc_calc_delta(aGraph):
     """
 
     for vertex in aGraph:
-        vertex.gc_transform()
+        vertex.transform()
 
 
 def gp_calc_delta(aGraph):
