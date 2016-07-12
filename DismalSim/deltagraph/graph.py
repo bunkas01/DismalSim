@@ -449,31 +449,60 @@ class Graph:
         return iter(self._vertices.values())
 
     def __eq__(self, other):
-        """Tests equality of two graphs based on their vertices."""
-        pass
+        """Tests equality of two graphs based on their vertices.
 
-    def __add__(self, other):
-        """Adds a vertex to the Graph.
-
-        The function takes either an instance of the Vertex class, or a
-        tuple containing data to instantiate a new Vertex, and adds the
-        Vertex to the Graph, instantiating it if necessary.
+        The method iterates over the vertices of the first graph, and
+        checks to see if the second graph contains those vertices. If
+        the second graph contains all the same vertices, and has an
+        equal length, they evaluate as equal. The Graph never evaluates
+        as equal to anything other than another graph.
         """
 
-        pass
+        for vert in self:
+            if vert not in other:
+                return False
+        if len(self) == len(other):
+            return True
 
-    def __getitem__(self, item):
-        pass
+    def __add__(self, vertex):
+        """Adds a vertex to the Graph.
 
-    def __setitem__(self, key, value):
-        pass
+        The method takes an instance of the Vertex class, and adds it
+        to the Graph.
+        """
+
+        if isinstance(vertex, Vertex):
+            vName = vertex.name
+            self._vertices[vName] = vertex
+
+    def __getitem__(self, key):
+        """Retrieves a vertex from the graph, using its name as a key.
+
+        The relevant Vertex is looked up in the graph's _vertices
+        dictionary, with the supplied string as a key. If the key isn't
+        present, a KeyError is raised.
+        """
+
+        aVertex = self._vertices[key]
+        return aVertex
+
+    def __setitem__(self, key, vertex):
+        """Adds a vertex to the graph, indexed by <key>."""
+
+        self._vertices[key] = vertex
 
     def __delitem__(self, key):
-        pass
+        """Removes the vertex indexed by <key> from the Graph.
 
-    def get_all_vertices(self):
-        """Returns a list of all _vertices in the Graph."""
-        return list(self._vertices.values())
+        If the key is not present in the Graph's _vertices dictionary,
+        then a KeyError is raised.
+        """
+
+        del self._vertices[key]
+
+    # def get_all_vertices(self):
+    #     """Returns a list of all _vertices in the Graph."""
+    #     return list(self._vertices.values())
 
     def get_vertex(self, vName):
         """Retrieves a Vertex from the graph based on its name."""
@@ -771,6 +800,13 @@ def main():
     for vert in aGraph:
         print(vert)
     # End gc_transform method test
+
+    bGraph = Graph()
+    bGraph + Vertex("alpha", 20)
+    bGraph["beta"] = Vertex("beta", 13)
+    bGraph.add_edge(bGraph["alpha"], bGraph["beta"], "aa_lin", [1])
+    print(bGraph["alpha"])
+    print(bGraph)
 
 
 if __name__ == '__main__':
