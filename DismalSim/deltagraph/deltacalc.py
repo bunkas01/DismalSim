@@ -30,8 +30,8 @@ def gen_data_log(aGraph):
 
     vDataDict = {}
     for vertex in aGraph:
-        vName = vertex.get_name()
-        vData = [vName, vertex.get_data()]
+        vName = vertex.name
+        vData = [vName, vertex.data]
         vDataDict[vName] = vData
     return vDataDict
 
@@ -47,8 +47,8 @@ def log_data(aGraph, dataLog):
 
     for key in dataLog:
         dataList = dataLog[key]
-        vertex = aGraph.get_vertex(key)
-        vData = vertex.get_data()
+        vertex = aGraph[key]
+        vData = vertex.data
         dataList.append(vData)
 
 
@@ -62,9 +62,10 @@ def manual_delta(aGraph, deltaDict):
 
     for key in deltaDict:
         if key in aGraph:
-            vTarget = aGraph.get_vertex(key)
+            vTarget = aGraph[key]
             delta = deltaDict[key]
-            vTarget.set_delta_float(delta)
+            vTarget.deltaFloat = delta
+
 
 def gc_calc_delta(aGraph):
     """Calculates delta values using a greedy-child paradigm.
@@ -92,9 +93,11 @@ def gc_multicount_delta(aGraph, maxCount, initDeltaDict):
     for count in range(maxCount + 1):
         if count == 0:
             manual_delta(aGraph, initDeltaDict)
+            aGraph.apply_floating_deltas()
         else:
             gc_calc_delta(aGraph)
-        aGraph.apply_floating_deltas()
+            aGraph.apply_inherent_deltas()
+            aGraph.apply_floating_deltas()
         log_data(aGraph, dataLog)
     return dataLog
 
@@ -122,10 +125,10 @@ def output_spreadsheet(filename, dataDict):
 
 def main():
     aGraph = graph.Graph()
-    aGraph.add_vertex("A", 10)
-    aGraph.add_vertex("B", 10)
-    aGraph.add_vertex("C", 10)
-    aGraph.add_vertex("D", 10)
+    aGraph + graph.Vertex("A", 10)
+    aGraph + graph.Vertex("B", 10)
+    aGraph + graph.Vertex("C", 10)
+    aGraph + graph.Vertex("D", 10)
     aGraph.add_edge("A", "B", "aa_lin", [2, 2])
     aGraph.add_edge("A", "C", "pp_lin", [10, 15])
     aGraph.add_edge("B", "D", "aa_lin", [1])

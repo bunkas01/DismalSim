@@ -78,7 +78,7 @@ class Vertex:
           These are used for modeling changes to the vertex in a
           linked system--the previous absolute delta values are used to
           calculate the floating delta of the Vertex's _children.
-        - self._deltaFloat, the absolute floating delta value. This
+        - self.deltaFloat, the absolute floating delta value. This
           value is what edge and self transforms modify, and, as it
           does not modify the Vertex's data until explicitly applied,
           it is considered to 'float'.
@@ -137,7 +137,7 @@ class Vertex:
         self._parents = {}
         self._deltaPrevAbs = [0]
         self._deltaPrevPer = [0]
-        self._deltaFloat = 0
+        self.deltaFloat = 0
         if kwargs is not None:
             if "deltaInherent" in kwargs.keys():
                 self._deltaInherent = kwargs["deltaInherent"]
@@ -160,8 +160,8 @@ class Vertex:
         """Returns a string describing the Vertex."""
         pList = []
         for vertex in self._parents:
-            pList.append(vertex.get_name())
-        vStr = ("Vertex {0} has value: {1} and is a child of _vertices:"
+            pList.append(vertex.name)
+        vStr = ("Vertex {0} has value: {1} and is a child of vertices:"
                 " {2}".format(self.name, str(self.data), " ".join(pList)))
         return vStr
 
@@ -172,102 +172,29 @@ class Vertex:
         else:
             return False
 
-    def get_name(self):
-        """Returns the Vertex's name."""
-        return self.name
-
-    def set_name(self, newName):
-        """Sets the Vertex's name to <newName>."""
-        self.name = str(newName)
-
-    def get_data(self):
-        """Returns the Vertex's data."""
-        if self.data is None:
-            raise RetrievalError(0)
-        return self.data
-
-    def set_data(self, newData):
-        """Sets the Vertex's data to <newData>."""
-        try:
-            self.data = float(newData)
-        except ValueError:
-            raise DataError(0)
-
-    def get_abs_delta_prev(self):
-        """Returns the previous absolute delta value."""
-        return self._deltaPrevAbs[0]
-
-    def set_abs_delta_prev(self, newDelta):
-        """Sets the previous absolute delta value to <newDelta>."""
-        try:
-            self._deltaPrevAbs.insert(0, float(newDelta))
-        except ValueError:
-            raise DataError(1)
-
-    def get_per_delta_prev(self):
-        """Returns the previous percent delta value."""
-        return self._deltaPrevPer[0]
-
-    def set_per_delta_prev(self, newDelta):
-        """Sets the previous percent delta value to <newDelta>."""
-        try:
-            self._deltaPrevPer.insert(0, float(newDelta))
-        except ValueError:
-            raise DataError(1)
-
-    def get_delta_float(self):
-        """Returns the Vertex's floating delta value."""
-        return self._deltaFloat
-
-    def set_delta_float(self, newDelta):
-        """Sets the Vertex's previous floating delta value to <newDelta>."""
-        try:
-            self._deltaFloat = float(newDelta)
-        except ValueError:
-            raise DataError(2)
-    def apply_delta_float(self):
-        """Adds the current value of _deltaFloat to data."""
+    def apply_delta_inherent(self):
+        """Placeholder."""
         if not self._randomFlag:
             if not self._percentFlag:
-                self._deltaFloat += self._deltaInherent
+                self.deltaFloat += self._deltaInherent
             else:
                 multiplier = self._deltaInherent / 100
-                self._deltaFloat += multiplier * self.data
+                self.deltaFloat += multiplier * self.data
 
-        newData = self.data + self._deltaFloat
-        self._deltaPrevAbs.insert(0, self._deltaFloat)
+    def apply_delta_float(self):
+        """Adds the current value of deltaFloat to data."""
+        newData = self.data + self.deltaFloat
+        self._deltaPrevAbs.insert(0, self.deltaFloat)
         self._deltaPrevPer.insert(0, (((newData / self.data) - 1) * 100))
-        self.data += self._deltaFloat
-        self._deltaFloat = 0
+        self.data += self.deltaFloat
+        self.deltaFloat = 0
 
         if self._randomFlag:
             a = self._randomInfo[0]
             b = self._randomInfo[1]
             self.data = random.uniform(a, b)
 
-    def get_parent_vertices(self):
-        """Returns a list of the Vertex's parent _vertices."""
-        return list(self._parents.keys())
-
-    def check_parent(self, aVertex):
-        """Checks if <aVertex> is a parent of the Vertex."""
-        if aVertex in self._parents:
-            return True
-        else:
-            return False
-
-    def add_parent(self, pVertex, tData):
-        """Adds an edge reference with <pVertex> as the 'parent.'"""
-        self._parents[pVertex] = tData
-
-    def remove_parent(self, pVertex):
-        """Removes edge reference where <pVertex> is the 'parent.'"""
-        try:
-            del self._parents[pVertex]
-        except KeyError:
-            raise EdgeError(2)
-
-    def add_edge(self, cVertex, tName, tParameters):
+    def add_edge(self, pVertex, tName, tParameters):
         """Adds a directed edge between the Vertex and <cVertex>.
 
         The method serves primarily as a wrapper for the add_parent and
@@ -292,12 +219,10 @@ class Vertex:
         tData = [tKey]
         tData.extend(tParameters)
         tDataTuple = tuple(tData)
-        try:
-            cVertex.add_parent(self, tDataTuple)
-        except AttributeError:
-            raise EdgeError(1)
+        self._parents[pVertex] = tDataTuple
 
-    def remove_edge(self, cVertex):
+
+    def remove_edge(self, pVertex):
         """Removes a directed edge between the Vertex and <cVertex>.
 
         The method function as a wrapper function for the remove_child
@@ -308,14 +233,14 @@ class Vertex:
         """
 
         try:
-            cVertex.remove_parent(self)
+            del self._parents[pVertex]
         except AttributeError:
             raise EdgeError(3)
 
     def transform(self):
-        """Calculates '_deltaFloat' based on a greedy-child paradigm.
+        """Calculates 'deltaFloat' based on a greedy-child paradigm.
 
-        When using the greedy-child transform paradigm, _deltaFloat is
+        When using the greedy-child transform paradigm, deltaFloat is
         calculated by pulling relevant data from the parent nodes.
         """
 
@@ -324,9 +249,9 @@ class Vertex:
             tKey = tData[0]
             tData = tData[1:]
             if tKey >= 0 and tKey <= 5:
-                pDelta = pVertex.get_abs_delta_prev()
+                pDelta = pVertex._deltaPrevAbs[0]
             elif tKey >= 6 and tKey <= 11:
-                pDelta = pVertex.get_per_delta_prev()
+                pDelta = pVertex._deltaPrevAbs[0]
             if tKey == 0:
                 nDelta = transforms.AA_linear(pDelta, tData)
             elif tKey == 1:
@@ -353,10 +278,10 @@ class Vertex:
                 nDelta = transforms.PP_polynomial(pDelta, tData)
             if tKey in (0, 1, 2, 6, 7, 8):
                 # Applies absolute changes
-                self._deltaFloat += nDelta
+                self.deltaFloat += nDelta
             elif tKey in (3, 4, 5, 9, 10, 11):
                 # Applies percentage changes
-                self._deltaFloat += nDelta * self.data
+                self.deltaFloat += nDelta * self.data
 
 
 class Graph:
@@ -413,7 +338,7 @@ class Graph:
         """Returns a string describing the Graph."""
         vList = []
         for vertex in self:
-            vList.append(vertex.get_name())
+            vList.append(vertex.name)
         gStr = "The Graph contains _vertices: {0}".format(" ".join(vList))
         return gStr
 
@@ -497,34 +422,6 @@ class Graph:
 
         del self._vertices[key]
 
-    # def get_all_vertices(self):
-    #     """Returns a list of all _vertices in the Graph."""
-    #     return list(self._vertices.values())
-
-    def get_vertex(self, vName):
-        """Retrieves a Vertex from the graph based on its name."""
-        try:
-            aVertex = self._vertices[vName]
-        except KeyError:
-            raise RetrievalError(1)
-        return aVertex
-
-    def add_vertex(self, name, data=None):
-        """Instantiates and adds a new Vertex to the Graph.
-
-        Method Parameters:
-            - name, the name of the Vertex to be instantiated and added
-              to the Graph. This parameter is required.
-            - data, the data for the new Vertex to contain. It is an
-              optional parameter and defaults to None.
-        """
-        newVertex = Vertex(name, data)
-        self._vertices[name] = newVertex
-
-    def add_existing_vertex(self, aVertex):
-        """Adds an already instantiated Vertex to the Graph."""
-        self._vertices[aVertex.get_name()] = aVertex
-
     def add_edge(self, pVertex, cVertex, tName, tParameters):
         """Adds a directed edge to the Graph.
 
@@ -541,14 +438,14 @@ class Graph:
               associated with the edge.
         """
         if isinstance(pVertex, str):
-            pvertex = self.get_vertex(pVertex)
+            pvertex = self[pVertex]
         else:
             pvertex = pVertex
         if isinstance(cVertex, str):
-            cvertex = self.get_vertex(cVertex)
+            cvertex = self[cVertex]
         else:
             cvertex = cVertex
-        pvertex.add_edge(cvertex, tName, tParameters)
+        cvertex.add_edge(pvertex, tName, tParameters)
 
     def remove_edge(self, pVertex, cVertex):
         """Removes a directed edge between <pVertex> and <cVertex>.
@@ -562,13 +459,17 @@ class Graph:
         """
 
         try:
-            pVertex.remove_edge(cVertex)
+            cVertex.remove_edge(pVertex)
         except AttributeError:
             raise EdgeError(4)
 
     def apply_floating_deltas(self):
         for vert in self:
             vert.apply_delta_float()
+
+    def apply_inherent_deltas(self):
+        for vert in self:
+            vert.apply_delta_inherent()
 
 
 class GraphError(Exception):
@@ -658,8 +559,8 @@ class DataError(GraphError):
                    " 'data' to <newData>",
                 1: "Invalid value for Vertex '_deltaPrevAbs' attribute, unable"
                    " to set '_deltaPrevAbs' to <newDelta>",
-                2: "Invalid value for Vertex '_deltaFloat' attribute, unable to"
-                   " set '_deltaFloat' to <newDelta>"}
+                2: "Invalid value for Vertex 'deltaFloat' attribute, unable to"
+                   " set 'deltaFloat' to <newDelta>"}
 
 
 class RetrievalError(GraphError):
@@ -700,103 +601,6 @@ def main():
           _vertices.
 
     """
-
-    # Begin error demonstration
-    try:
-        Vertex("A", "lies")
-    except InitError as error:
-        print(error)
-    try:
-        Graph(Vertex("A"), 5)
-    except InitError as error:
-        print(error)
-    aVertex = Vertex("A", 2)
-    bVertex = Vertex("B")
-    try:
-        aVertex.add_edge(bVertex, "math", [42])
-    except EdgeError as error:
-        print(error)
-    try:
-        aVertex.add_edge(5, "abs_proportional", [1])
-    except EdgeError as error:
-        print(error)
-    try:
-        aVertex.remove_edge(5)
-    except EdgeError as error:
-        print(error)
-    try:
-        bVertex.remove_parent(4)
-    except EdgeError as error:
-        print(error)
-    try:
-        aVertex.set_data("A")
-    except DataError as error:
-        print(error)
-    try:
-        aVertex.set_abs_delta_prev("A")
-    except DataError as error:
-        print(error)
-    try:
-        aVertex.set_delta_float("A")
-    except DataError as error:
-        print(error)
-    try:
-        bVertex.get_data()
-    except RetrievalError as error:
-        print(error)
-    aGraph = Graph()
-    try:
-        aGraph.get_vertex("C")
-    except RetrievalError as error:
-        print(error)
-    del aVertex, bVertex, aGraph
-    # End error demonstration
-
-    # Begin Graph instantiation and iteration
-    vertex1 = Vertex("A", 5)
-    vertex2 = Vertex("B", 10)
-    vertex3 = Vertex("C", 3)
-    aGraph = Graph(vertex1, vertex2, vertex3)
-    aGraph.add_vertex("D", 7)
-    aSum = 0
-    for vertex in aGraph:
-        aSum += vertex.get_data()
-    print(aSum)
-    # End Graph instantiation and iteration.
-
-    # Begin edge testing
-    # Create edges, through Graph and Vertex methods
-    vertex5 = Vertex("E", 5)
-    aGraph.add_existing_vertex(vertex5)
-    vertex1.add_edge(vertex2, "aa_lin", [1])
-    aGraph.add_edge(vertex1, vertex3, "aa_lin", [3, 3])
-    aGraph.add_edge(vertex2, aGraph.get_vertex("D"), "aa_lin", [2, 1])
-    aGraph.add_edge(vertex2, vertex5, "pa_exp", [2, 3])
-    aGraph.add_edge(vertex3, vertex1, "pa_lin", [2, 1])
-    vertex3.add_edge(aGraph.get_vertex("D"), "pp_lin", [2])
-    aGraph.get_vertex("D").add_edge(vertex3, "aa_lin", [1, 1])
-    vertex5.add_edge(aGraph.get_vertex("D"), "aa_exp", [3])
-
-    # Remove edges, through Graph and Vertex methods
-    vertex1.remove_edge(vertex3)
-    aGraph.remove_edge(vertex3, aGraph.get_vertex("D"))
-    # End edge testing
-
-    # Begin print test
-    print(aGraph)
-    for vert in aGraph:
-        print(vert)
-    # End print test
-
-    # Begin transform method test
-    for vert in aGraph:
-        vert.set_abs_delta_prev(10)
-    for vert in aGraph:
-        vert.transform()
-    aGraph.apply_floating_deltas()
-    for vert in aGraph:
-        print(vert)
-    # End transform method test
 
     bGraph = Graph()
     bGraph + Vertex("alpha", 20, deltaInherent=5)
