@@ -53,9 +53,9 @@ aGraph.add_edge("RIR", "I", "aa_lin", [-5.31])
 aGraph.add_edge("RIR", "FX", "aa_lin", [0.79])
 aGraph.add_edge("RIR", "C", "aa_lin", [-7.02])
 
-iDelta = {"G": 114.4, "T": 50.4, "C": 134.6, "YD": 144, "M": -6.2, "Y": 194.4,
-         "X": 43, "PL": 5.5, "I": -49.2, "FX": -1.54, "M2": 118.6, "NIR":
-         -2.41, "RIR": -1.21}
+iDelta = {"G": 114.4, "T": 50.4, "C": 134.6, "YD": 144, "IM": -6.2, "Y": 194.4,
+          "EX": 43, "PL": 5.5, "I": -49.2, "FX": -1.54, "M2": 118.6,
+          "NIR": -2.41, "RIR": -1.21}
 
 output = deltacalc.gc_multicount_delta(aGraph, 9, iDelta)
 
