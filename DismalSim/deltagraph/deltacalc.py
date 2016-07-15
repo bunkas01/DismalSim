@@ -78,16 +78,6 @@ def gc_calc_delta(aGraph):
         vertex.transform()
 
 
-def gp_calc_delta(aGraph):
-    """Calculates delta values using a generous-parent paradigm.
-
-    Function Arguments:
-        -aGraph
-    """
-
-    return NotImplemented
-
-
 def gc_multicount_delta(aGraph, maxCount, initDeltaDict):
     dataLog = gen_data_log(aGraph)
     for count in range(maxCount + 1):
