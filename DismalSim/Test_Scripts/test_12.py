@@ -3,14 +3,12 @@ from DismalSim.deltagraph import digraph
 
 """Scripting the model from 1990-1999, with concurrent regressions.
 
-The script constructs a graph corresponding to a modified version of
-the base economic model, and runs it through the time period of
-1990-1999; modifications to the model were the removal of edges linking
-the Imports and Exports vertices to the Foreign-Exchange Vertex.
-Additionally, regressions were recalculated without these edges present.
-The regressions used to calculate edge relationships were performed
-over the same time period, in order to test the fundamental robustness
-of the model.
+The script constructs a graph corresponding to the base economic model,
+and runs it through the time period of 1990-1999; the regressions used
+to calculate edge relationships were performed on the same time period,
+in order to test the fundamental robustness of the model. In this test
+script, the initial delta is set equal to the inherent delta rather
+than being the actual change from 1990 to 1991.
 """
 
 aGraph = digraph.DiGraph()
@@ -23,7 +21,7 @@ aGraph + digraph.Vertex("Y", 5979.6)
 aGraph + digraph.Vertex("EX", 551.9, deltaInherent=72.0)
 aGraph + digraph.Vertex("PL", 66.77, deltaInherent=-4.22)
 aGraph + digraph.Vertex("I", 993.5, deltaInherent=57.0)
-aGraph + digraph.Vertex("FX", 71.41, deltaInherent=79.7)
+aGraph + digraph.Vertex("FX", 71.41, deltaInherent=-11.3)
 aGraph + digraph.Vertex("M2", 3223.58, deltaInherent=-249)
 aGraph + digraph.Vertex("NIR", 8.1, deltaInherent=-0.467)
 aGraph + digraph.Vertex("RIR", 4.4)
@@ -44,11 +42,13 @@ aGraph.add_edge("EX", "Y", "aa_lin", [1])
 aGraph.add_edge("IM", "Y", "aa_lin", [-1])
 aGraph.add_edge("FX", "EX", "aa_lin", [-2.61])
 aGraph.add_edge("PL", "EX", "aa_lin", [-2.16])
-aGraph.add_edge("M2", "PL", "aa_lin", [-0.008])
+aGraph.add_edge("M2", "PL", "aa_lin", [-0.00823])
 aGraph.add_edge("Y", "PL", "aa_lin", [0.0165])
 aGraph.add_edge("RIR", "I", "aa_lin", [3.49])
 aGraph.add_edge("Y", "I", "aa_lin", [0.153])
-aGraph.add_edge("RIR", "FX", "aa_lin", [137])
+aGraph.add_edge("RIR", "FX", "aa_lin", [-13.4])
+aGraph.add_edge("EX", "FX", "aa_lin", [0.396])
+aGraph.add_edge("IM", "FX", "aa_lin", [0.703])
 aGraph.add_edge("NIR", "M2", "aa_lin", [-14.4])
 aGraph.add_edge("Y", "M2", "aa_lin", [1.17])
 aGraph.add_edge("PL", "M2", "aa_lin", [-52.5])
@@ -57,9 +57,9 @@ aGraph.add_edge("PL", "NIR", "aa_lin", [-0.104])
 aGraph.add_edge("NIR", "RIR", "aa_lin", [1])
 aGraph.add_edge("PL", "RIR", "pa_lin", [-1])
 
-initDelta = {"G": 114.4, "T": 50.4, "C": 134.6, "YD": 144, "IM": -6.2,
-             "Y": 194.4, "EX": 43, "PL": 5.5, "I": -49.2, "FX": 2.94,
-             "M2": 118.6, "NIR": -2.41, "RIR": -1.21}
+initDelta = {"G": 73.5, "T": 30.9, "C": 40.1, "IM": 30.3,
+             "EX": 72, "PL": 4.22, "I": 57, "FX": 11.3,
+             "M2": 249, "NIR": 0.467}
 
 output = deltacalc.gc_multicount_delta(aGraph, 8, initDelta)
-deltacalc.output_spreadsheet("test_11_data", output)
+deltacalc.output_spreadsheet("test_12_data", output)
