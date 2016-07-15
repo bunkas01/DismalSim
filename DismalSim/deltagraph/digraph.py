@@ -347,7 +347,7 @@ class DiGraph:
         if len(vertices) != 0:
             try:
                 for vertex in vertices:
-                    vName = vertex.get_name()
+                    vName = vertex.name
                     self._vertices[vName] = vertex
             except AttributeError:
                 del self
