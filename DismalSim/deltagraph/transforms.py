@@ -427,7 +427,9 @@ def main():
           exceptions defined in this module, following by catching the
           exceptions to test and demonstrate them.
         - Performing computations with each transform, to test the
-          accuracy of each functions computations.
+          accuracy of each functions computations. These computations
+          are separated into 5 blocks, grouping functions together by
+          leading identifier.
     """
 
     # Begin Error Test

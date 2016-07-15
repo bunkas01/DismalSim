@@ -1,5 +1,5 @@
 from DismalSim.deltagraph import deltacalc
-from DismalSim.deltagraph import graph
+from DismalSim.deltagraph import digraph
 
 """Multiple Linear Regressions 1955-1989, T Causes G.
 
@@ -8,20 +8,20 @@ regressions on the period 1955-1989, assuming that taxes determine
 government spending.
 """
 
-aGraph = graph.Graph()
-aGraph + graph.Vertex("G", 1920.2, deltaInherent=3.59)
-aGraph + graph.Vertex("T", 1712.9, deltaInherent=1.11)
-aGraph + graph.Vertex("YD", 4266.7)
-aGraph + graph.Vertex("C", 3825.6, deltaInherent=-1.37)
-aGraph + graph.Vertex("IM", 629.7, deltaInherent=36.14)
-aGraph + graph.Vertex("Y", 5979.6)
-aGraph + graph.Vertex("EX", 551.9, deltaInherent=62.03)
-aGraph + graph.Vertex("PL", 66.77, deltaInherent=0.54)
-aGraph + graph.Vertex('I', 993.5, deltaInherent=0.77)
-aGraph + graph.Vertex("FX", 71.41, deltaInherent=3)
-aGraph + graph.Vertex("M2", 3223.58, deltaInherent=10.65)
-aGraph + graph.Vertex("NIR", 8.1, deltaInherent=0.38)
-aGraph + graph.Vertex("RIR", 4.4)
+aGraph = digraph.DiGraph()
+aGraph + digraph.Vertex("G", 1920.2, deltaInherent=3.59)
+aGraph + digraph.Vertex("T", 1712.9, deltaInherent=1.11)
+aGraph + digraph.Vertex("YD", 4266.7)
+aGraph + digraph.Vertex("C", 3825.6, deltaInherent=-1.37)
+aGraph + digraph.Vertex("IM", 629.7, deltaInherent=36.14)
+aGraph + digraph.Vertex("Y", 5979.6)
+aGraph + digraph.Vertex("EX", 551.9, deltaInherent=62.03)
+aGraph + digraph.Vertex("PL", 66.77, deltaInherent=0.54)
+aGraph + digraph.Vertex('I', 993.5, deltaInherent=0.77)
+aGraph + digraph.Vertex("FX", 71.41, deltaInherent=3)
+aGraph + digraph.Vertex("M2", 3223.58, deltaInherent=10.65)
+aGraph + digraph.Vertex("NIR", 8.1, deltaInherent=0.38)
+aGraph + digraph.Vertex("RIR", 4.4)
 aGraph.add_edge("T", "G", "aa_lin", [1.15])
 aGraph.add_edge("Y", "T", "aa_lin", [0.31])
 aGraph.add_edge("G", "Y", "aa_lin", [1])

@@ -1,6 +1,6 @@
 from openpyxl import Workbook
 
-from DismalSim.deltagraph import graph
+from DismalSim.deltagraph import digraph
 
 """Algorithms for calculating changes in dynamic graphs.
 
@@ -124,11 +124,11 @@ def output_spreadsheet(filename, dataDict):
 
 
 def main():
-    aGraph = graph.Graph()
-    aGraph + graph.Vertex("A", 10)
-    aGraph + graph.Vertex("B", 10)
-    aGraph + graph.Vertex("C", 10)
-    aGraph + graph.Vertex("D", 10)
+    aGraph = digraph.DiGraph()
+    aGraph + digraph.Vertex("A", 10)
+    aGraph + digraph.Vertex("B", 10)
+    aGraph + digraph.Vertex("C", 10)
+    aGraph + digraph.Vertex("D", 10)
     aGraph.add_edge("A", "B", "aa_lin", [2, 2])
     aGraph.add_edge("A", "C", "pp_lin", [10, 15])
     aGraph.add_edge("B", "D", "aa_lin", [1])

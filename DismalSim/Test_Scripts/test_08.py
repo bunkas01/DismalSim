@@ -1,5 +1,5 @@
 from DismalSim.deltagraph import deltacalc
-from DismalSim.deltagraph import graph
+from DismalSim.deltagraph import digraph
 
 """Multiple Linear Regressions 1959-1989, T Causes G.
 
@@ -11,20 +11,20 @@ necessity of finishing the implementation of the actual delta
 algorithm supporting exogenous vertices.
 """
 
-aGraph = graph.Graph()
-aGraph + graph.Vertex("G", 1920.2, deltaInherent=5.76)
-aGraph + graph.Vertex("T", 1712.9, deltaInherent=1.40)
-aGraph + graph.Vertex("YD", 4266.7)
-aGraph + graph.Vertex("C", 3825.6, deltaInherent=-2.41)
-aGraph + graph.Vertex("IM", 629.7, deltaInherent=36.14)
-aGraph + graph.Vertex("Y", 5979.6, deltaInherent=54.85)
-aGraph + graph.Vertex("EX", 551.9, deltaInherent=62.03)
-aGraph + graph.Vertex("PL", 66.77, deltaInherent=0.54)
-aGraph + graph.Vertex('I', 993.5, deltaInherent=0.41)
-aGraph + graph.Vertex("FX", 71.41, deltaInherent=3.00)
-aGraph + graph.Vertex("M2", 3223.58, deltaInherent=10.54)
-aGraph + graph.Vertex("NIR", 8.1, deltaInherent=0.50)
-aGraph + graph.Vertex("RIR", 4.4)
+aGraph = digraph.DiGraph()
+aGraph + digraph.Vertex("G", 1920.2, deltaInherent=5.76)
+aGraph + digraph.Vertex("T", 1712.9, deltaInherent=1.40)
+aGraph + digraph.Vertex("YD", 4266.7)
+aGraph + digraph.Vertex("C", 3825.6, deltaInherent=-2.41)
+aGraph + digraph.Vertex("IM", 629.7, deltaInherent=36.14)
+aGraph + digraph.Vertex("Y", 5979.6, deltaInherent=54.85)
+aGraph + digraph.Vertex("EX", 551.9, deltaInherent=62.03)
+aGraph + digraph.Vertex("PL", 66.77, deltaInherent=0.54)
+aGraph + digraph.Vertex('I', 993.5, deltaInherent=0.41)
+aGraph + digraph.Vertex("FX", 71.41, deltaInherent=3.00)
+aGraph + digraph.Vertex("M2", 3223.58, deltaInherent=10.54)
+aGraph + digraph.Vertex("NIR", 8.1, deltaInherent=0.50)
+aGraph + digraph.Vertex("RIR", 4.4)
 aGraph.add_edge("T", "G", "aa_lin", [1.11])
 aGraph.add_edge("Y", "T", "aa_lin", [0.30])
 aGraph.add_edge("T", "YD", "aa_lin", [-1])
@@ -52,7 +52,7 @@ aGraph.add_edge("RIR", "FX", "aa_lin", [0.79])
 aGraph.add_edge("RIR", "C", "aa_lin", [-7.02])
 
 iDelta = {"G": 114.4, "T": 50.4, "C": 134.6, "YD": 144, "IM": -6.2, "Y": 194.4,
-          "EX": 43, "PL": 5.5, "I": -49.2, "FX": -1.54, "M2": 118.6,
+          "EX": 43, "PL": 5.5, "I": -49.2, "FX": 2.94, "M2": 118.6,
           "NIR": -2.41, "RIR": -1.21}
 
 output = deltacalc.gc_multicount_delta(aGraph, 9, iDelta)

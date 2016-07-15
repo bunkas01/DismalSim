@@ -9,7 +9,7 @@ useful for modeling other linked dynamic systems.
 
 Classes:
     - Vertex
-    - Graph
+    - DiGraph
 
 Exceptions:
     - GraphError
@@ -21,7 +21,7 @@ Exceptions:
 
 
 class Vertex:
-    """The Vertex class, intended for use in a Graph.
+    """The Vertex class, intended for use in a DiGraph.
 
     The Vertex class is designed for usage in directed graphs, and it
     maintains a system of dual references to the directed edges between
@@ -33,9 +33,9 @@ class Vertex:
     dictionary. A Tuple containing information about the relationship
     represented by the edge is shared by the dictionaries. This system
     of dual references, while technically unnecessary, enables the
-    Graph to be used with either Generous-Parent or Greedy-Child
+    DiGraph to be used with either Generous-Parent or Greedy-Child
     Transform paradigms. This reference redundancy can also to some
-    extent enable the Graph to be considered both directed and
+    extent enable the DiGraph to be considered both directed and
     undirected.
 
     Supported Transform Types:
@@ -284,19 +284,19 @@ class Vertex:
                 self.deltaFloat += nDelta * self.data
 
 
-class Graph:
-    """The Graph class, intended to model linked systems.
+class DiGraph:
+    """The DiGraph class, intended to model linked systems.
 
-    This Graph is a directed one, though the dual edge references
-    maintained by the Graph's _vertices enable it be used in a fashion
-    similar to an undirected one, if needed. The Graph is primarily
+    This DiGraph is a directed one, though the dual edge references
+    maintained by the DiGraph's _vertices enable it be used in a fashion
+    similar to an undirected one, if needed. The DiGraph is primarily
     implemented as a container for its _vertices, and many, but not all,
-    of the Graph's methods are just wrappers for the equivalent Vertex
+    of the DiGraph's methods are just wrappers for the equivalent Vertex
     methods.
 
     Class Data:
         - _vertices, a dictionary of the _vertices contained in the
-          Graph, indexed by the name of the Vertex. They take their
+          DiGraph, indexed by the name of the Vertex. They take their
           initial value, if any, from the <*vertices> argument of the
           __init__ method.
 
@@ -309,19 +309,19 @@ class Graph:
     """
 
     def __init__(self, *vertices):
-        """Initializes class data for the Graph.
+        """Initializes class data for the DiGraph.
 
-        When the Graph is instantiated, it defaults to an empty state.
+        When the DiGraph is instantiated, it defaults to an empty state.
         However, the method takes _vertices as optional positional
         arguments. The _vertices in the arguments have their names
-        extracted and are added to the Graph's dictionary of _vertices,
+        extracted and are added to the DiGraph's dictionary of _vertices,
         indexed by their extracted names. Additionally, if any objects
         that are not instances of the Vertex class are passed into the
         method, it raises an InitError.
 
         Method Parameters:
             - *vertices, the list of optional arguments--presumed to be
-              vertices to be included in the Graph at instantiation.
+              vertices to be included in the DiGraph at instantiation.
         """
 
         self._vertices = {}
@@ -335,15 +335,15 @@ class Graph:
                 raise InitError(1)
 
     def __str__(self):
-        """Returns a string describing the Graph."""
+        """Returns a string describing the DiGraph."""
         vList = []
         for vertex in self:
             vList.append(vertex.name)
-        gStr = "The Graph contains _vertices: {0}".format(" ".join(vList))
+        gStr = "The DiGraph contains _vertices: {0}".format(" ".join(vList))
         return gStr
 
     def __contains__(self, aVertex):
-        """Checks if <aVertex> is present in the Graph.
+        """Checks if <aVertex> is present in the DiGraph.
 
         <aVertex> may be either a reference to the Vertex itself, or a
         string. If it is a string, the string is treated as the
@@ -363,11 +363,11 @@ class Graph:
             return False
 
     def __len__(self):
-        """Returns the number of _vertices in the Graph."""
+        """Returns the number of _vertices in the DiGraph."""
         return len(self._vertices)
 
     def __iter__(self):
-        """Returns an iterator over the _vertices of the Graph."""
+        """Returns an iterator over the _vertices of the DiGraph."""
         return iter(self._vertices.values())
 
     def __eq__(self, other):
@@ -376,7 +376,7 @@ class Graph:
         The method iterates over the vertices of the first graph, and
         checks to see if the second graph contains those vertices. If
         the second graph contains all the same vertices, and has an
-        equal length, they evaluate as equal. The Graph never evaluates
+        equal length, they evaluate as equal. The DiGraph never evaluates
         as equal to anything other than another graph.
         """
 
@@ -387,10 +387,10 @@ class Graph:
             return True
 
     def __add__(self, vertex):
-        """Adds a vertex to the Graph.
+        """Adds a vertex to the DiGraph.
 
         The method takes an instance of the Vertex class, and adds it
-        to the Graph.
+        to the DiGraph.
         """
 
         if isinstance(vertex, Vertex):
@@ -414,16 +414,16 @@ class Graph:
         self._vertices[key] = vertex
 
     def __delitem__(self, key):
-        """Removes the vertex indexed by <key> from the Graph.
+        """Removes the vertex indexed by <key> from the DiGraph.
 
-        If the key is not present in the Graph's _vertices dictionary,
+        If the key is not present in the DiGraph's _vertices dictionary,
         then a KeyError is raised.
         """
 
         del self._vertices[key]
 
     def add_edge(self, pVertex, cVertex, tName, tParameters):
-        """Adds a directed edge to the Graph.
+        """Adds a directed edge to the DiGraph.
 
         The function is primarily a wrapper for the Vertex add_edge
         method and creates a directed edge between <pVertex> and
@@ -512,9 +512,9 @@ class InitError(GraphError):
     messages = {0: "Invalid value for Vertex Constructor <data> parameter."
                 " Parameter must be either omitted, an integer, or a float."
                 " Unable to initialize Vertex.",
-                1: "Invalid argument for Graph constructor arguments. All"
+                1: "Invalid argument for DiGraph constructor arguments. All"
                    " arguments must be instances of the Vertex class. Unable to"
-                   " initialize Graph."}
+                   " initialize DiGraph."}
 
 
 class EdgeError(GraphError):
@@ -567,7 +567,7 @@ class RetrievalError(GraphError):
     """Exception for attempting to retrieve non-existent data.
 
     This exception is raised either when a Vertex's 'data' attribute is
-    None, or when attempting to retrieve a Vertex by name from a Graph,
+    None, or when attempting to retrieve a Vertex by name from a DiGraph,
     and the Vertex isn't present.
 
     Superclass Differences:
@@ -576,33 +576,17 @@ class RetrievalError(GraphError):
 
     messages = {0: "Vertex data is None. Conventional operations on this data"
                    " are not recommended.",
-                1: "Vertex name not present in Graph '_vertices' dictionary."
+                1: "Vertex name not present in DiGraph '_vertices' dictionary."
                    " Unable to retrieve vertex."}
 
 
 def main():
     """Test script for the classes and exceptions in this module.
 
-    Test Components:
-        - try-except blocks that deliberately result in raising the
-          exceptions included in the module, followed by catching them
-          to test and demonstrate the exceptions.
-        - Instantiating a Graph with _vertices as positional arguments,
-          and adding further _vertices via class methods, to test and
-          demonstrate the Graph's instantiation and mutation.
-        - for loops iterating over the _vertices of the Graph, to test
-          and demonstrate its __iter__ method.
-        - Creation and deletion of edges within a graph, to test and
-          demonstrate relevant methods.
-        - Print the Graph, to test both Graph and Vertex __str__
-          methods.
-        - Forcibly set the _deltaPrevAbs attribute of all _vertices in
-          the test graph, and call the transform method of those
-          _vertices.
 
     """
 
-    bGraph = Graph()
+    bGraph = DiGraph()
     bGraph + Vertex("alpha", 20, deltaInherent=5)
     bGraph["beta"] = Vertex("beta", 13)
     bGraph.add_edge(bGraph["alpha"], bGraph["beta"], "aa_lin", [1])
