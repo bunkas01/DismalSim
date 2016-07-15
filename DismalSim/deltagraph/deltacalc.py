@@ -1,5 +1,6 @@
-import graph
 from openpyxl import Workbook
+
+from DismalSim.deltagraph import digraph
 
 """Algorithms for calculating changes in dynamic graphs.
 
@@ -18,9 +19,9 @@ def gen_data_log(aGraph):
     """Creates a dict-of-lists to record data from delta calculations.
 
     The function creates a new dictionary, in which to store the 'data'
-    attributes of vertices at each step in an iterative simulation. The
+    attributes of _vertices at each step in an iterative simulation. The
     dictionary entries are indexed by Vertex, and the associated values
-    are lists of the vertices 'data' attribute, intended to be written
+    are lists of the _vertices 'data' attribute, intended to be written
     to after each cycle of the simulation.
 
     Function Arguments:
@@ -29,8 +30,8 @@ def gen_data_log(aGraph):
 
     vDataDict = {}
     for vertex in aGraph:
-        vName = vertex.get_name()
-        vData = [vName, vertex.get_data()]
+        vName = vertex.name
+        vData = [vName, vertex.data]
         vDataDict[vName] = vData
     return vDataDict
 
@@ -46,8 +47,8 @@ def log_data(aGraph, dataLog):
 
     for key in dataLog:
         dataList = dataLog[key]
-        vertex = aGraph.get_vertex(key)
-        vData = vertex.get_data()
+        vertex = aGraph[key]
+        vData = vertex.data
         dataList.append(vData)
 
 
@@ -61,9 +62,10 @@ def manual_delta(aGraph, deltaDict):
 
     for key in deltaDict:
         if key in aGraph:
-            vTarget = aGraph.get_vertex(key)
+            vTarget = aGraph[key]
             delta = deltaDict[key]
-            vTarget.set_delta_float(delta)
+            vTarget.deltaFloat = delta
+
 
 def gc_calc_delta(aGraph):
     """Calculates delta values using a greedy-child paradigm.
@@ -73,17 +75,7 @@ def gc_calc_delta(aGraph):
     """
 
     for vertex in aGraph:
-        vertex.gc_transform()
-
-
-def gp_calc_delta(aGraph):
-    """Calculates delta values using a generous-parent paradigm.
-
-    Function Arguments:
-        -aGraph
-    """
-
-    return NotImplemented
+        vertex.transform()
 
 
 def gc_multicount_delta(aGraph, maxCount, initDeltaDict):
@@ -91,9 +83,11 @@ def gc_multicount_delta(aGraph, maxCount, initDeltaDict):
     for count in range(maxCount + 1):
         if count == 0:
             manual_delta(aGraph, initDeltaDict)
+            aGraph.apply_floating_deltas()
         else:
             gc_calc_delta(aGraph)
-        aGraph.apply_floating_deltas()
+            aGraph.apply_inherent_deltas()
+            aGraph.apply_floating_deltas()
         log_data(aGraph, dataLog)
     return dataLog
 
@@ -120,11 +114,11 @@ def output_spreadsheet(filename, dataDict):
 
 
 def main():
-    aGraph = graph.Graph()
-    aGraph.add_vertex("A", 10)
-    aGraph.add_vertex("B", 10)
-    aGraph.add_vertex("C", 10)
-    aGraph.add_vertex("D", 10)
+    aGraph = digraph.DiGraph()
+    aGraph + digraph.Vertex("A", 10)
+    aGraph + digraph.Vertex("B", 10)
+    aGraph + digraph.Vertex("C", 10)
+    aGraph + digraph.Vertex("D", 10)
     aGraph.add_edge("A", "B", "aa_lin", [2, 2])
     aGraph.add_edge("A", "C", "pp_lin", [10, 15])
     aGraph.add_edge("B", "D", "aa_lin", [1])

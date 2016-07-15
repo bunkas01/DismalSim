@@ -70,14 +70,14 @@ class TransformError(Exception):
 
 
 class ParameterError(TransformError):
-    """Exception for issues with gc_transform parameters."""
+    """Exception for issues with transform parameters."""
 
     messages = {0: "The value supplied for the <parameters> argument of the"
-                   " gc_transform function is not a valid sequence. Unable to"
-                   " extract gc_transform parameters.",
+                   " transform function is not a valid sequence. Unable to"
+                   " extract transform parameters.",
                 1: "Sequence index is out of range, insufficient parameters"
                    " present in supplied sequence. Unable to extract all"
-                   " necessary gc_transform parameters.",
+                   " necessary transform parameters.",
                 2: "A value in the sequence <parameters> is not an integer or a"
                    " float. Unable to use value for computation."}
 
@@ -427,7 +427,9 @@ def main():
           exceptions defined in this module, following by catching the
           exceptions to test and demonstrate them.
         - Performing computations with each transform, to test the
-          accuracy of each functions computations.
+          accuracy of each functions computations. These computations
+          are separated into 5 blocks, grouping functions together by
+          leading identifier.
     """
 
     # Begin Error Test
