@@ -148,10 +148,14 @@ class Vertex:
                 self._percentFlag = kwargs["percentFlag"]
             else:
                 self._percentFlag = False
-            if "randomFlag" in kwargs.keys():
-                self._randomFlag = ["randomFlag"]
+            if "randomDeltaFlag" in kwargs.keys():
+                self._randomDeltaFlag = kwargs["randomDeltaFlag"]
             else:
-                self._randomFlag = False
+                self._randomDeltaFlag = False
+            if "randomValFlag" in kwargs.keys():
+                self._randomValFlag = kwargs["randomValFlag"]
+            else:
+                self._randomValFlag = False
             if "randomInfo" in kwargs.keys():
                 self._randomInfo = kwargs["randomInfo"]
             else:
@@ -175,25 +179,39 @@ class Vertex:
 
     def apply_delta_inherent(self):
         """Placeholder."""
-        if not self._randomFlag:
-            if not self._percentFlag:
-                self.deltaFloat += self._deltaInherent
-            else:
-                multiplier = self._deltaInherent / 100
+        if self._percentFlag:
+            multiplier = self._deltaInherent / 100
+            self.deltaFloat += multiplier * self.data
+            if self._randomDeltaFlag:
+                a = self._randomInfo[0]
+                b = self._randomInfo[1]
+                multiplier = random.uniform(a, b)
                 self.deltaFloat += multiplier * self.data
+        else:
+            self.deltaFloat += self._deltaInherent
+            if self._randomDeltaFlag:
+                a = self._randomInfo[0]
+                b = self._randomInfo[1]
+                self.deltaFloat = random.uniform(a, b)
 
     def apply_delta_float(self):
         """Adds the current value of deltaFloat to data."""
-        newData = self.data + self.deltaFloat
-        self._deltaPrevAbs.insert(0, self.deltaFloat)
-        self._deltaPrevPer.insert(0, (((newData / self.data) - 1) * 100))
-        self.data += self.deltaFloat
-        self.deltaFloat = 0
 
-        if self._randomFlag:
+        if not self._randomValFlag:
+            newData = self.data + self.deltaFloat
+            self._deltaPrevAbs.insert(0, self.deltaFloat)
+            self._deltaPrevPer.insert(0, (((newData / self.data) - 1) * 100))
+            self.data += self.deltaFloat
+            self.deltaFloat = 0
+        else:
             a = self._randomInfo[0]
             b = self._randomInfo[1]
-            self.data = random.uniform(a, b)
+            newData = random.uniform(a, b)
+            delta = self.data - newData
+            self._deltaPrevAbs.insert(0, delta)
+            self._deltaPrevPer.insert(0, (((delta / self.data) - 1) * 100))
+            self.deltaFloat = 0
+            self.data = newData
 
     def add_edge(self, pVertex, tName, tParameters):
         """Adds a directed edge between the Vertex and <cVertex>.
