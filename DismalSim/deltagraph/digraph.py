@@ -138,6 +138,7 @@ class Vertex:
         self._deltaPrevAbs = [0]
         self._deltaPrevPer = [0]
         self.deltaFloat = 0
+
         if kwargs is not None:
             if "deltaInherent" in kwargs.keys():
                 self._deltaInherent = kwargs["deltaInherent"]
