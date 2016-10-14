@@ -3,10 +3,11 @@ from DismalSim.deltagraph import digraph
 
 """Scripting the model from 1990-1999, with regressions 1980-1989.
 
-The script constructs a graph in which Y is exogenous and runs it
-through the time period of 1990-1999; the regressions used to calculate
-edge relationships were performed on the time period 1980-1989. This
-graph includes feedback from EX and IM to FX.
+The script constructs a graph in which Y is exogenous and increases by
+a given percent per year and runs it through the time period of 1990-
+1999; the regressions used to calculate edge relationships were
+performed on the time period 1980-1989. This graph does not include
+feedback from EX and IM to FX.
 """
 
 aGraph = digraph.DiGraph()
@@ -19,7 +20,7 @@ aGraph + digraph.Vertex("Y", 5979.6, deltaInherent=7.89, percentFlag=True)
 aGraph + digraph.Vertex("EX", 551.9, deltaInherent=27.0)
 aGraph + digraph.Vertex("PL", 66.77, deltaInherent=-3.71)
 aGraph + digraph.Vertex("I", 993.5, deltaInherent=-25.3)
-aGraph + digraph.Vertex("FX", 71.41, deltaInherent=1.58)
+aGraph + digraph.Vertex("FX", 71.41, deltaInherent=4.63)
 aGraph + digraph.Vertex("M2", 3223.58, deltaInherent=-66.0)
 aGraph + digraph.Vertex("NIR", 8.1, deltaInherent=-0.567)
 aGraph + digraph.Vertex("RIR", 4.4)
@@ -39,9 +40,7 @@ aGraph.add_edge("M2", "PL", "aa_lin", [0.0178])
 aGraph.add_edge("Y", "PL", "aa_lin", [0.00794])
 aGraph.add_edge("RIR", "I", "aa_lin", [-18.1])
 aGraph.add_edge("Y", "I", "aa_lin", [0.247])
-aGraph.add_edge("RIR", "FX", "aa_lin", [5.17])
-aGraph.add_edge("EX", "FX", "aa_lin",[-0.0359])
-aGraph.add_edge("IM", "FX", "aa_lin", [0.0890])
+aGraph.add_edge("RIR", "FX", "aa_lin", [7.35])
 aGraph.add_edge("NIR", "M2", "aa_lin", [-8.01])
 aGraph.add_edge("Y", "M2", "aa_lin", [0.716])
 aGraph.add_edge("PL", "M2", "aa_lin", [-27.7])
@@ -55,4 +54,4 @@ initDelta = {"G": 114.4, "T": 50.4, "C": 134.6, "YD": 144, "IM": -6.2,
              "M2": 118.6, "NIR": -2.41, "RIR": -1.21}
 
 output = deltacalc.gc_multicount_delta(aGraph, 8, initDelta)
-deltacalc.output_spreadsheet("test_31_data", output)
+deltacalc.output_spreadsheet("test_32_data", output)
